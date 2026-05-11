@@ -11,20 +11,20 @@ import { cn } from "@/lib/utils";
 type Msg = { role: "user" | "assistant"; content: string };
 
 type Props = {
-  /** Optional context the assistant should know about (e.g. weak subjects, a question being explained). */
   context?: {
     recentScores?: { subject: string; score: number }[];
     weakSubjects?: string[];
     currentQuestion?: { question: string; options: string[]; correctAnswer: string; userAnswer?: string };
   };
-  /** Force-open the panel (e.g. when "Explain answer" is clicked). */
   openSignal?: number;
-  /** A starter prompt to send automatically when openSignal fires. */
   starterPrompt?: string;
 };
 
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+
 export function AIChatWidget({ context, openSignal, starterPrompt }: Props) {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
@@ -37,7 +37,6 @@ export function AIChatWidget({ context, openSignal, starterPrompt }: Props) {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, loading]);
 
-  // Auto-open + auto-send when parent triggers via openSignal
   useEffect(() => {
     if (openSignal && openSignal !== lastSignalRef.current) {
       lastSignalRef.current = openSignal;
@@ -60,12 +59,17 @@ export function AIChatWidget({ context, openSignal, starterPrompt }: Props) {
     const controller = new AbortController();
     abortRef.current = controller;
 
+    // Use the user's JWT access token so the Edge Function can verify the caller.
+    // Fall back to anon key if session is somehow unavailable.
+    const authToken = session?.access_token ?? SUPABASE_ANON_KEY;
+
     try {
-      const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`, {
+      const resp = await fetch(`${SUPABASE_URL}/functions/v1/ai-chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          Authorization: `Bearer ${authToken}`,
+          apikey: SUPABASE_ANON_KEY,
         },
         body: JSON.stringify({ messages: [...messages, userMsg], context }),
         signal: controller.signal,
@@ -73,9 +77,15 @@ export function AIChatWidget({ context, openSignal, starterPrompt }: Props) {
 
       if (!resp.ok || !resp.body) {
         const err = await resp.json().catch(() => ({ error: "Request failed" }));
-        if (resp.status === 429) toast.error("Too many requests — please slow down.");
-        else if (resp.status === 402) toast.error("AI credits exhausted. Add credits in workspace settings.");
-        else toast.error(err.error || "AI request failed");
+        if (resp.status === 401 || resp.status === 403) {
+          toast.error("Authentication error — please sign out and sign back in.");
+        } else if (resp.status === 429) {
+          toast.error("Too many requests — please slow down.");
+        } else if (resp.status === 402) {
+          toast.error("AI credits exhausted. Contact support.");
+        } else {
+          toast.error(err.error || "AI request failed");
+        }
         setMessages((prev) => prev.slice(0, -1));
         setLoading(false);
         return;
@@ -102,7 +112,6 @@ export function AIChatWidget({ context, openSignal, starterPrompt }: Props) {
         const { done, value } = await reader.read();
         if (done) break;
         textBuffer += decoder.decode(value, { stream: true });
-
         let nl: number;
         while ((nl = textBuffer.indexOf("\n")) !== -1) {
           let line = textBuffer.slice(0, nl);
@@ -124,7 +133,6 @@ export function AIChatWidget({ context, openSignal, starterPrompt }: Props) {
       }
     } catch (e) {
       if ((e as Error).name !== "AbortError") {
-        console.error(e);
         toast.error("Connection lost");
       }
     } finally {
@@ -140,7 +148,6 @@ export function AIChatWidget({ context, openSignal, starterPrompt }: Props) {
 
   return (
     <>
-      {/* Floating launcher */}
       <button
         onClick={() => setOpen(true)}
         aria-label="Open AI study assistant"
@@ -161,7 +168,6 @@ export function AIChatWidget({ context, openSignal, starterPrompt }: Props) {
             transition={{ duration: 0.18 }}
             className="fixed bottom-5 right-5 z-50 flex h-[min(640px,calc(100vh-2.5rem))] w-[min(420px,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
           >
-            {/* Header */}
             <div className="flex items-center justify-between border-b border-border bg-gradient-hero px-4 py-3 text-white">
               <div className="flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20">
@@ -184,7 +190,6 @@ export function AIChatWidget({ context, openSignal, starterPrompt }: Props) {
               </div>
             </div>
 
-            {/* Messages */}
             <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto p-4">
               {messages.length === 0 && (
                 <div className="flex h-full flex-col items-center justify-center text-center">
@@ -217,9 +222,7 @@ export function AIChatWidget({ context, openSignal, starterPrompt }: Props) {
                   <div
                     className={cn(
                       "max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm",
-                      m.role === "user"
-                        ? "bg-gradient-hero text-white"
-                        : "bg-secondary text-foreground",
+                      m.role === "user" ? "bg-gradient-hero text-white" : "bg-secondary text-foreground",
                     )}
                   >
                     {m.role === "assistant" ? (
@@ -242,7 +245,6 @@ export function AIChatWidget({ context, openSignal, starterPrompt }: Props) {
               )}
             </div>
 
-            {/* Composer */}
             <form
               onSubmit={(e) => { e.preventDefault(); void send(input); }}
               className="flex items-end gap-2 border-t border-border bg-card p-3"
@@ -251,10 +253,7 @@ export function AIChatWidget({ context, openSignal, starterPrompt }: Props) {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    void send(input);
-                  }
+                  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void send(input); }
                 }}
                 placeholder="Ask anything…"
                 rows={1}
