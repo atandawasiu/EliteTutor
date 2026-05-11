@@ -18,3 +18,23 @@ expertMode = true
 [postMerge]
 path = "scripts/post-merge.sh"
 timeoutMs = 20000
+
+[[ports]]
+localPort = 8080
+externalPort = 8080
+
+[[ports]]
+localPort = 8081
+externalPort = 80
+
+[[ports]]
+localPort = 22454
+externalPort = 3000
+
+[userenv]
+
+[userenv.shared]
+VITE_SUPABASE_URL = "https://xdkmreqkkcwujimdhbrq.supabase.co"
+VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhka21yZXFra2N3dWppbWRoYnJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzMzgyMDcsImV4cCI6MjA5MTkxNDIwN30.3E5LnSRWao5dqT68aDOwR9IIR82CZ6CHljcQUK53NpU"
+VITE_WOLFRAMALPHA_APP_ID = "YJYQR47GHQ"
+WOLFRAMALPHA_APP_ID = "YJYQR47GHQ"
