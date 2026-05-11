@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { BookOpen, Target, TrendingUp, Flame, ChevronRight, Loader2, Bookmark, Settings2 } from "lucide-react";
+import { BookOpen, Target, TrendingUp, Flame, ChevronRight, Loader2, Bookmark, Settings2, Copy, Check, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,6 +20,64 @@ type Attempt = {
 export const Route = createFileRoute("/dashboard")({
   component: () => <RequireAuth><DashboardPage /></RequireAuth>,
 });
+
+function UserProfileCard() {
+  const { user, profile } = useAuth();
+  const [copied, setCopied] = useState(false);
+
+  const copyId = () => {
+    if (!user) return;
+    navigator.clipboard.writeText(user.id).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
+  };
+
+  if (!user) return null;
+
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-hero text-white font-bold text-sm">
+          {(profile?.full_name ?? user.email ?? "?")[0].toUpperCase()}
+        </div>
+        <div className="min-w-0">
+          <p className="font-semibold text-sm truncate">{profile?.full_name ?? "Student"}</p>
+          <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+        </div>
+      </div>
+      <div className="space-y-2 text-xs">
+        <div className="flex items-center justify-between rounded-lg bg-secondary px-3 py-2">
+          <div className="flex items-center gap-1.5 text-muted-foreground">
+            <User className="h-3.5 w-3.5" />
+            <span className="font-medium">User ID</span>
+          </div>
+          <button onClick={copyId} className="flex items-center gap-1 font-mono text-muted-foreground hover:text-primary transition-colors">
+            {copied ? <Check className="h-3 w-3 text-success" /> : <Copy className="h-3 w-3" />}
+            <span className="text-[11px]">{user.id.slice(0, 12)}…</span>
+          </button>
+        </div>
+        {(profile as { plan?: string } | null)?.plan && (
+          <div className="flex items-center justify-between rounded-lg bg-secondary px-3 py-2">
+            <span className="text-muted-foreground font-medium">Plan</span>
+            <span className={`font-semibold capitalize ${(profile as { plan?: string } | null)?.plan === "premium" ? "text-primary" : "text-muted-foreground"}`}>
+              {(profile as { plan?: string } | null)?.plan ?? "free"}
+            </span>
+          </div>
+        )}
+        {(profile as { target_exam?: string } | null)?.target_exam && (
+          <div className="flex items-center justify-between rounded-lg bg-secondary px-3 py-2">
+            <span className="text-muted-foreground font-medium">Target Exam</span>
+            <span className="font-medium">{(profile as { target_exam?: string } | null)?.target_exam}</span>
+          </div>
+        )}
+        {user.created_at && (
+          <div className="flex items-center justify-between rounded-lg bg-secondary px-3 py-2">
+            <span className="text-muted-foreground font-medium">Member since</span>
+            <span>{new Date(user.created_at).toLocaleDateString("en-NG", { year: "numeric", month: "short" })}</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function DashboardPage() {
   const { profile, user } = useAuth();
@@ -178,6 +236,8 @@ function DashboardPage() {
         </div>
 
         <div className="space-y-6">
+          <UserProfileCard />
+
           <div className="rounded-2xl border border-border bg-card p-5">
             <h2 className="font-display text-base font-semibold mb-3">Focus Areas</h2>
             {weakSubjects.length === 0 ? (

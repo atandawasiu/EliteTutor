@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Users, BookOpen, BarChart3, FileText, Plus, Trash2, Loader2, School as SchoolIcon, Megaphone, Newspaper, Layers, Wifi, MenuIcon, ArrowUp, ArrowDown, Pencil, Eye, EyeOff, Shield, ShieldOff, Activity, LayoutTemplate } from "lucide-react";
+import { Users, BookOpen, BarChart3, FileText, Plus, Trash2, Loader2, School as SchoolIcon, Megaphone, Newspaper, Layers, Wifi, MenuIcon, ArrowUp, ArrowDown, Pencil, Eye, EyeOff, Shield, ShieldOff, Activity, LayoutTemplate, CheckSquare, Square, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -125,17 +125,26 @@ function AdminPanel() {
 }
 
 /* ---------- QUESTIONS ---------- */
+type QRow = { id: string; question: string; correct_answer: string; options: string[] | null; explanation: string | null; difficulty: string | null; year: number | null; topic: string | null; subject_id: string | null; subjects: { name: string } | null };
+type EditQ = { id: string; question: string; optA: string; optB: string; optC: string; optD: string; correct: string; explanation: string; difficulty: string; year: string; topic: string; subject_id: string };
+
 function QuestionsManager() {
   const [subjects, setSubjects] = useState<{ id: string; name: string; exams: { name: string } | null }[]>([]);
-  const [questions, setQuestions] = useState<{ id: string; question: string; correct_answer: string; subjects: { name: string } | null }[]>([]);
+  const [questions, setQuestions] = useState<QRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState({ subject_id: "", question: "", optA: "", optB: "", optC: "", optD: "", correct: "", explanation: "" });
+  const [form, setForm] = useState({ subject_id: "", question: "", optA: "", optB: "", optC: "", optD: "", correct: "", explanation: "", difficulty: "medium", year: "", topic: "" });
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [editQ, setEditQ] = useState<EditQ | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [filterSubject, setFilterSubject] = useState("all");
+  const [search, setSearch] = useState("");
 
   const reload = async () => {
     setLoading(true);
     const [{ data: s }, { data: q }] = await Promise.all([
       supabase.from("subjects").select("id, name, exams(name)").order("name"),
-      supabase.from("questions").select("id, question, correct_answer, subjects(name)").order("created_at", { ascending: false }).limit(50),
+      supabase.from("questions").select("id, question, correct_answer, options, explanation, difficulty, year, topic, subject_id, subjects(name)").order("created_at", { ascending: false }).limit(100),
     ]);
     setSubjects((s ?? []) as never);
     setQuestions((q ?? []) as never);
@@ -150,9 +159,11 @@ function QuestionsManager() {
     const options = [form.optA, form.optB, form.optC, form.optD].filter(Boolean);
     const { error } = await supabase.from("questions").insert({
       subject_id: form.subject_id, question: form.question, options,
-      correct_answer: form.correct, explanation: form.explanation || null, difficulty: "medium",
+      correct_answer: form.correct, explanation: form.explanation || null,
+      difficulty: form.difficulty as "easy" | "medium" | "hard", year: form.year ? Number(form.year) : null, topic: form.topic || null,
     });
-    if (error) toast.error(error.message); else { toast.success("Question added"); setForm({ subject_id: "", question: "", optA: "", optB: "", optC: "", optD: "", correct: "", explanation: "" }); }
+    if (error) toast.error(error.message);
+    else { toast.success("Question added"); setForm({ subject_id: "", question: "", optA: "", optB: "", optC: "", optD: "", correct: "", explanation: "", difficulty: "medium", year: "", topic: "" }); }
   };
 
   const remove = async (id: string) => {
@@ -161,53 +172,170 @@ function QuestionsManager() {
     if (error) toast.error(error.message); else toast.success("Deleted");
   };
 
+  const bulkDelete = async () => {
+    if (selected.size === 0) return;
+    if (!confirm(`Delete ${selected.size} selected question(s)?`)) return;
+    setBulkDeleting(true);
+    const ids = Array.from(selected);
+    const { error } = await supabase.from("questions").delete().in("id", ids);
+    if (error) toast.error(error.message);
+    else { toast.success(`Deleted ${ids.length} questions`); setSelected(new Set()); }
+    setBulkDeleting(false);
+  };
+
+  const startEdit = (q: QRow) => {
+    const opts = q.options ?? [];
+    setEditQ({ id: q.id, question: q.question, optA: opts[0] ?? "", optB: opts[1] ?? "", optC: opts[2] ?? "", optD: opts[3] ?? "", correct: q.correct_answer, explanation: q.explanation ?? "", difficulty: q.difficulty ?? "medium", year: q.year?.toString() ?? "", topic: q.topic ?? "", subject_id: q.subject_id ?? "" });
+  };
+
+  const saveEdit = async () => {
+    if (!editQ) return;
+    setSaving(true);
+    const opts = [editQ.optA, editQ.optB, editQ.optC, editQ.optD].filter(Boolean);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const payload: any = { question: editQ.question, options: opts, correct_answer: editQ.correct, explanation: editQ.explanation || null, difficulty: editQ.difficulty, year: editQ.year ? Number(editQ.year) : null, topic: editQ.topic || null, subject_id: editQ.subject_id || null };
+    const { error } = await supabase.from("questions").update(payload).eq("id", editQ.id);
+    if (error) toast.error(error.message); else { toast.success("Question updated"); setEditQ(null); }
+    setSaving(false);
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelected(prev => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
+  };
+  const selectAll = () => setSelected(new Set(filtered.map(q => q.id)));
+  const clearAll = () => setSelected(new Set());
+
+  const filtered = questions.filter(q =>
+    (filterSubject === "all" || q.subject_id === filterSubject) &&
+    (!search || q.question.toLowerCase().includes(search.toLowerCase()) || q.topic?.toLowerCase().includes(search.toLowerCase()))
+  );
+
   return (
     <div className="mt-4 space-y-6">
       <BulkQuestionImporter />
+
+      {/* Edit Modal */}
+      {editQ && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="w-full max-w-xl rounded-2xl border border-border bg-card p-5 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <h3 className="font-display font-semibold mb-4 flex items-center gap-2"><Pencil className="h-4 w-4" /> Edit Question</h3>
+            <div className="space-y-3">
+              <div>
+                <Label>Subject</Label>
+                <Select value={editQ.subject_id} onValueChange={v => setEditQ({ ...editQ, subject_id: v })}>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="Select subject" /></SelectTrigger>
+                  <SelectContent>{subjects.map(s => <SelectItem key={s.id} value={s.id}>{s.exams?.name} — {s.name}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              <div><Label>Question</Label><Textarea value={editQ.question} onChange={e => setEditQ({ ...editQ, question: e.target.value })} className="mt-1" rows={3} /></div>
+              <div className="grid grid-cols-2 gap-2">
+                {(["A", "B", "C", "D"] as const).map(l => (
+                  <div key={l}><Label>Option {l}</Label><Input value={editQ[`opt${l}` as keyof EditQ] as string} onChange={e => setEditQ({ ...editQ, [`opt${l}`]: e.target.value })} className="mt-1" /></div>
+                ))}
+              </div>
+              <div><Label>Correct Answer</Label><Input value={editQ.correct} onChange={e => setEditQ({ ...editQ, correct: e.target.value })} className="mt-1" /></div>
+              <div className="grid grid-cols-3 gap-2">
+                <div><Label>Difficulty</Label>
+                  <Select value={editQ.difficulty} onValueChange={v => setEditQ({ ...editQ, difficulty: v })}>
+                    <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                    <SelectContent><SelectItem value="easy">Easy</SelectItem><SelectItem value="medium">Medium</SelectItem><SelectItem value="hard">Hard</SelectItem></SelectContent>
+                  </Select>
+                </div>
+                <div><Label>Year</Label><Input type="number" value={editQ.year} onChange={e => setEditQ({ ...editQ, year: e.target.value })} className="mt-1" placeholder="e.g. 2023" /></div>
+                <div><Label>Topic</Label><Input value={editQ.topic} onChange={e => setEditQ({ ...editQ, topic: e.target.value })} className="mt-1" /></div>
+              </div>
+              <div><Label>Explanation</Label><Textarea value={editQ.explanation} onChange={e => setEditQ({ ...editQ, explanation: e.target.value })} className="mt-1" rows={2} /></div>
+              <div className="flex gap-2">
+                <Button onClick={saveEdit} disabled={saving} className="flex-1 bg-gradient-hero text-white">{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save changes"}</Button>
+                <Button variant="outline" onClick={() => setEditQ(null)}>Cancel</Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="grid gap-6 lg:grid-cols-2">
-      <div className="rounded-2xl border border-border bg-card p-5">
-        <h3 className="font-display font-semibold mb-4 flex items-center gap-2"><Plus className="h-4 w-4" /> Add Question Manually</h3>
-        <div className="space-y-3">
-          <div>
-            <Label>Subject</Label>
-            <Select value={form.subject_id} onValueChange={v => setForm({ ...form, subject_id: v })}>
-              <SelectTrigger className="mt-1"><SelectValue placeholder="Select subject" /></SelectTrigger>
+        <div className="rounded-2xl border border-border bg-card p-5">
+          <h3 className="font-display font-semibold mb-4 flex items-center gap-2"><Plus className="h-4 w-4" /> Add Question Manually</h3>
+          <div className="space-y-3">
+            <div>
+              <Label>Subject</Label>
+              <Select value={form.subject_id} onValueChange={v => setForm({ ...form, subject_id: v })}>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Select subject" /></SelectTrigger>
+                <SelectContent>{subjects.map(s => <SelectItem key={s.id} value={s.id}>{s.exams?.name} — {s.name}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div><Label>Question</Label><Textarea value={form.question} onChange={e => setForm({ ...form, question: e.target.value })} className="mt-1" rows={2} /></div>
+            <div className="grid grid-cols-2 gap-2">
+              {(["A", "B", "C", "D"] as const).map(l => (
+                <div key={l}><Label>Option {l}</Label><Input value={form[`opt${l}` as keyof typeof form] as string} onChange={e => setForm({ ...form, [`opt${l}`]: e.target.value })} className="mt-1" /></div>
+              ))}
+            </div>
+            <div><Label>Correct Answer (must match an option exactly)</Label><Input value={form.correct} onChange={e => setForm({ ...form, correct: e.target.value })} className="mt-1" /></div>
+            <div className="grid grid-cols-3 gap-2">
+              <div><Label>Difficulty</Label>
+                <Select value={form.difficulty} onValueChange={v => setForm({ ...form, difficulty: v })}>
+                  <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                  <SelectContent><SelectItem value="easy">Easy</SelectItem><SelectItem value="medium">Medium</SelectItem><SelectItem value="hard">Hard</SelectItem></SelectContent>
+                </Select>
+              </div>
+              <div><Label>Year</Label><Input type="number" value={form.year} onChange={e => setForm({ ...form, year: e.target.value })} className="mt-1" placeholder="2024" /></div>
+              <div><Label>Topic</Label><Input value={form.topic} onChange={e => setForm({ ...form, topic: e.target.value })} className="mt-1" /></div>
+            </div>
+            <div><Label>Explanation (optional)</Label><Textarea value={form.explanation} onChange={e => setForm({ ...form, explanation: e.target.value })} className="mt-1" rows={2} /></div>
+            <Button onClick={create} className="w-full bg-gradient-hero text-white">Add Question</Button>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card p-5">
+          <div className="mb-3 flex flex-wrap items-center gap-2">
+            <h3 className="font-display font-semibold">Questions ({filtered.length}/{questions.length})</h3>
+            <Input placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} className="h-7 w-32 text-xs ml-auto" />
+            <Select value={filterSubject} onValueChange={setFilterSubject}>
+              <SelectTrigger className="h-7 w-36 text-xs"><SelectValue /></SelectTrigger>
               <SelectContent>
-                {subjects.map(s => <SelectItem key={s.id} value={s.id}>{s.exams?.name} — {s.name}</SelectItem>)}
+                <SelectItem value="all">All subjects</SelectItem>
+                {subjects.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
-          <div><Label>Question</Label><Textarea value={form.question} onChange={e => setForm({ ...form, question: e.target.value })} className="mt-1" rows={2} /></div>
-          <div className="grid grid-cols-2 gap-2">
-            {(["A", "B", "C", "D"] as const).map(l => (
-              <div key={l}><Label>Option {l}</Label>
-                <Input value={form[`opt${l}` as keyof typeof form] as string} onChange={e => setForm({ ...form, [`opt${l}`]: e.target.value })} className="mt-1" />
-              </div>
-            ))}
+          {selected.size > 0 && (
+            <div className="mb-2 flex items-center gap-2 rounded-lg bg-destructive/10 px-3 py-2">
+              <span className="text-xs font-medium text-destructive flex-1">{selected.size} selected</span>
+              <Button size="sm" variant="ghost" onClick={clearAll} className="h-6 text-xs">Clear</Button>
+              <Button size="sm" onClick={bulkDelete} disabled={bulkDeleting} className="h-6 text-xs bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                {bulkDeleting ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3 mr-1" />} Delete {selected.size}
+              </Button>
+            </div>
+          )}
+          <div className="flex items-center gap-2 mb-2 px-1">
+            <button onClick={selected.size === filtered.length ? clearAll : selectAll} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground">
+              {selected.size === filtered.length && filtered.length > 0 ? <CheckSquare className="h-4 w-4 text-primary" /> : <Square className="h-4 w-4" />}
+              Select all
+            </button>
           </div>
-          <div><Label>Correct Answer (must match an option exactly)</Label><Input value={form.correct} onChange={e => setForm({ ...form, correct: e.target.value })} className="mt-1" /></div>
-          <div><Label>Explanation (optional)</Label><Textarea value={form.explanation} onChange={e => setForm({ ...form, explanation: e.target.value })} className="mt-1" rows={2} /></div>
-          <Button onClick={create} className="w-full bg-gradient-hero text-white">Add Question</Button>
-        </div>
-      </div>
-
-      <div className="rounded-2xl border border-border bg-card p-5">
-        <h3 className="font-display font-semibold mb-4">Recent Questions ({questions.length})</h3>
-        {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : (
-          <div className="space-y-2 max-h-[600px] overflow-y-auto">
-            {questions.map(q => (
-              <div key={q.id} className="flex items-start justify-between gap-2 rounded-lg bg-secondary p-3">
-                <div className="min-w-0">
-                  <p className="text-xs text-muted-foreground">{q.subjects?.name}</p>
-                  <p className="text-sm line-clamp-2">{q.question}</p>
-                  <p className="text-xs text-success mt-1">✓ {q.correct_answer}</p>
+          {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : (
+            <div className="space-y-2 max-h-[560px] overflow-y-auto pr-1">
+              {filtered.map(q => (
+                <div key={q.id} className={`flex items-start gap-2 rounded-lg p-3 transition-colors ${selected.has(q.id) ? "bg-primary/10 border border-primary/20" : "bg-secondary"}`}>
+                  <button onClick={() => toggleSelect(q.id)} className="mt-0.5 flex-none text-muted-foreground hover:text-primary">
+                    {selected.has(q.id) ? <CheckSquare className="h-4 w-4 text-primary" /> : <Square className="h-4 w-4" />}
+                  </button>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-muted-foreground">{q.subjects?.name}{q.year ? ` · ${q.year}` : ""}{q.difficulty ? ` · ${q.difficulty}` : ""}</p>
+                    <p className="text-sm line-clamp-2 mt-0.5">{q.question}</p>
+                    <p className="text-xs text-success mt-1">✓ {q.correct_answer}</p>
+                  </div>
+                  <div className="flex flex-col gap-1 flex-none">
+                    <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => startEdit(q)}><Pencil className="h-3.5 w-3.5" /></Button>
+                    <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => remove(q.id)}><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
+                  </div>
                 </div>
-                <Button size="icon" variant="ghost" onClick={() => remove(q.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+              ))}
+              {filtered.length === 0 && <p className="text-center text-sm text-muted-foreground py-6">No questions found.</p>}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -848,18 +976,39 @@ function TestimonialsManager() {
   );
 }
 
+function CopyableId({ id }: { id: string }) {
+  const [copied, setCopied] = useState(false);
+  const copy = () => {
+    navigator.clipboard.writeText(id).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1500); });
+  };
+  return (
+    <button onClick={copy} className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground bg-secondary hover:bg-primary/10 hover:text-primary transition-colors" title="Click to copy User ID">
+      {copied ? <Check className="h-3 w-3 text-success" /> : <Copy className="h-3 w-3" />}
+      {id.slice(0, 8)}…
+    </button>
+  );
+}
+
 function UsersManager() {
-  const [users, setUsers] = useState<{ id: string; full_name: string | null; email: string | null; plan: string; created_at: string }[]>([]);
+  const [users, setUsers] = useState<{ id: string; full_name: string | null; email: string | null; plan: string; created_at: string; whatsapp?: string | null; country?: string | null }[]>([]);
   const [adminIds, setAdminIds] = useState<Set<string>>(new Set());
+  const [attemptCounts, setAttemptCounts] = useState<Record<string, number>>({});
   const [search, setSearch] = useState("");
+  const [filterPlan, setFilterPlan] = useState("all");
 
   const reload = async () => {
     const [{ data: profiles }, { data: roles }] = await Promise.all([
-      supabase.from("profiles").select("id, full_name, email, plan, created_at").order("created_at", { ascending: false }),
+      supabase.from("profiles").select("id, full_name, email, plan, created_at, whatsapp, country").order("created_at", { ascending: false }),
       supabase.from("user_roles").select("user_id, role").eq("role", "admin"),
     ]);
-    setUsers(profiles ?? []);
+    setUsers((profiles ?? []) as never);
     setAdminIds(new Set((roles ?? []).map((r) => r.user_id)));
+    if (profiles && profiles.length > 0) {
+      const { data: attempts } = await supabase.from("attempts").select("user_id").in("user_id", profiles.map(p => p.id));
+      const counts: Record<string, number> = {};
+      (attempts ?? []).forEach(a => { counts[a.user_id] = (counts[a.user_id] ?? 0) + 1; });
+      setAttemptCounts(counts);
+    }
   };
   useEffect(() => { reload(); }, []);
   useRealtime("profiles", reload);
@@ -884,37 +1033,59 @@ function UsersManager() {
 
   const filtered = users.filter((u) => {
     const q = search.toLowerCase();
-    return !q || u.email?.toLowerCase().includes(q) || u.full_name?.toLowerCase().includes(q);
+    const matchSearch = !q || u.email?.toLowerCase().includes(q) || u.full_name?.toLowerCase().includes(q) || u.id.includes(q);
+    const matchPlan = filterPlan === "all" || u.plan === filterPlan;
+    return matchSearch && matchPlan;
   });
 
   return (
     <div className="mt-4 rounded-2xl border border-border bg-card p-5">
-      <div className="mb-4 flex items-center justify-between gap-3">
+      <div className="mb-4 flex flex-wrap items-center gap-3">
         <h3 className="font-display font-semibold">All Users ({filtered.length}/{users.length})</h3>
-        <Input placeholder="Search by name or email..." value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-xs" />
+        <Input placeholder="Search by name, email or ID..." value={search} onChange={(e) => setSearch(e.target.value)} className="flex-1 max-w-xs" />
+        <Select value={filterPlan} onValueChange={setFilterPlan}>
+          <SelectTrigger className="h-9 w-32"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All plans</SelectItem>
+            <SelectItem value="free">Free</SelectItem>
+            <SelectItem value="premium">Premium</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
-      <div className="space-y-2">
+      <div className="space-y-2 max-h-[70vh] overflow-y-auto pr-1">
         {filtered.map(u => {
           const isAdmin = adminIds.has(u.id);
           return (
-            <div key={u.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-secondary p-3">
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <p className="font-medium text-sm truncate">{u.full_name ?? "Unnamed"}</p>
-                  {isAdmin && <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">ADMIN</span>}
+            <div key={u.id} className="rounded-xl border border-border bg-secondary p-3">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="font-semibold text-sm truncate">{u.full_name ?? "Unnamed"}</p>
+                    {isAdmin && <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">ADMIN</span>}
+                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${u.plan === "premium" ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>{u.plan}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-0.5">{u.email}</p>
+                  <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                    <CopyableId id={u.id} />
+                    {u.country && <span className="text-[10px] text-muted-foreground bg-secondary border border-border rounded px-1.5 py-0.5">{u.country}</span>}
+                    {u.whatsapp && <span className="text-[10px] text-muted-foreground">📱 {u.whatsapp}</span>}
+                    <span className="text-[10px] text-muted-foreground">{attemptCounts[u.id] ?? 0} attempts</span>
+                    <span className="text-[10px] text-muted-foreground">Joined {new Date(u.created_at).toLocaleDateString()}</span>
+                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground truncate">{u.email}</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${u.plan === "premium" ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>{u.plan}</span>
-                <Button size="sm" variant="outline" onClick={() => togglePremium(u.id, u.plan)}>{u.plan === "premium" ? "Downgrade" : "Upgrade"}</Button>
-                <Button size="sm" variant={isAdmin ? "destructive" : "default"} onClick={() => toggleAdmin(u.id, isAdmin)} className="gap-1">
-                  {isAdmin ? <><ShieldOff className="h-3.5 w-3.5" /> Revoke admin</> : <><Shield className="h-3.5 w-3.5" /> Make admin</>}
-                </Button>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Button size="sm" variant="outline" onClick={() => togglePremium(u.id, u.plan)} className="text-xs h-7">
+                    {u.plan === "premium" ? "Downgrade" : "Upgrade"}
+                  </Button>
+                  <Button size="sm" variant={isAdmin ? "destructive" : "default"} onClick={() => toggleAdmin(u.id, isAdmin)} className="gap-1 text-xs h-7">
+                    {isAdmin ? <><ShieldOff className="h-3 w-3" /> Revoke</> : <><Shield className="h-3 w-3" /> Admin</>}
+                  </Button>
+                </div>
               </div>
             </div>
           );
         })}
+        {filtered.length === 0 && <p className="text-center text-sm text-muted-foreground py-8">No users found.</p>}
       </div>
     </div>
   );

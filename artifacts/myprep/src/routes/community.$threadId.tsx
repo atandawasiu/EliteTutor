@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Heart, Loader2, MessageCircle, Send, Trash2, Pin, Lock } from "lucide-react";
+import { ArrowLeft, Heart, Loader2, MessageCircle, Send, Trash2, Pin, Lock, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,6 +19,63 @@ type Reply = { id: string; body: string; author_id: string; created_at: string; 
 export const Route = createFileRoute("/community/$threadId")({
   component: ThreadPage,
 });
+
+function AiHelpBox({ question }: { question: string }) {
+  const [open, setOpen] = useState(false);
+  const [answer, setAnswer] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
+  const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+  const PROJECT_ID = "xdkmreqkkcwujimdhbrq";
+
+  const ask = async () => {
+    if (!user) { toast.error("Log in to use AI help"); return; }
+    setLoading(true);
+    try {
+      const session = await supabase.auth.getSession();
+      const token = session.data.session?.access_token;
+      const res = await fetch(`https://${PROJECT_ID}.supabase.co/functions/v1/ai-chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token ?? ANON_KEY}`, "apikey": ANON_KEY },
+        body: JSON.stringify({ messages: [{ role: "user", content: `Explain this question clearly with a step-by-step solution:\n\n${question}` }] }),
+      });
+      if (!res.ok) { setAnswer("AI is temporarily unavailable. Try again later."); return; }
+      const data = await res.json();
+      setAnswer(data.choices?.[0]?.message?.content ?? data.content ?? "No response");
+    } catch { setAnswer("Could not reach AI service."); }
+    finally { setLoading(false); }
+  };
+
+  return (
+    <div className="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-4">
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-4 w-4 text-primary" />
+          <p className="text-sm font-semibold text-primary">AI Assistant</p>
+        </div>
+        {open && <button onClick={() => { setOpen(false); setAnswer(""); }} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>}
+      </div>
+      {!open ? (
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-xs text-muted-foreground">Get a step-by-step AI explanation of this thread topic</p>
+          <Button size="sm" onClick={() => { setOpen(true); ask(); }} className="bg-gradient-hero text-white gap-1.5 shrink-0">
+            <Sparkles className="h-3.5 w-3.5" /> Ask AI
+          </Button>
+        </div>
+      ) : (
+        <div>
+          {loading ? (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
+              <Loader2 className="h-4 w-4 animate-spin" /> Generating explanation…
+            </div>
+          ) : (
+            <pre className="whitespace-pre-wrap text-sm text-foreground leading-relaxed font-sans">{answer}</pre>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function ThreadPage() {
   const { threadId } = Route.useParams();
@@ -141,6 +198,8 @@ function ThreadPage() {
           <span>{new Date(thread.created_at).toLocaleString()}</span>
         </div>
         <p className="mt-4 whitespace-pre-wrap text-sm leading-relaxed">{thread.body}</p>
+
+        <AiHelpBox question={`${thread.title}\n\n${thread.body}`} />
 
         <div className="mt-5 flex items-center justify-between border-t border-border pt-3">
           <button onClick={toggleLike} className={cn("flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm transition-colors",
