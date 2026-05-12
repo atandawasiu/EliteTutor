@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Loader2, Sparkles, Upload, Check, X, FileSpreadsheet, AlertTriangle, ChevronDown, ChevronUp } from "lucide-react";
+import { Loader2, Sparkles, Upload, Check, X, FileSpreadsheet, AlertTriangle, ChevronDown, ChevronUp, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -90,7 +90,7 @@ function csvRowsToParsed(headers: string[], rows: string[][]): Parsed[] {
     .filter(Boolean) as Parsed[];
 }
 
-export function BulkQuestionImporter() {
+export function BulkQuestionImporter({ onDone }: { onDone?: () => void }) {
   const [subjects, setSubjects] = useState<{ id: string; name: string; exams: { name: string } | null }[]>([]);
   const [subjectId, setSubjectId] = useState("");
   const [text, setText] = useState("");
@@ -200,7 +200,7 @@ export function BulkQuestionImporter() {
     if (failed > 0) {
       toast.warning(`Uploaded ${uploaded.toLocaleString()} questions. ${failed.toLocaleString()} failed.`);
     } else {
-      toast.success(`Successfully uploaded ${uploaded.toLocaleString()} questions! 🎉`);
+      toast.success(`Successfully uploaded ${uploaded.toLocaleString()} questions!`);
       setCsvRows([]);
       setCsvFile(null);
       if (csvInputRef.current) csvInputRef.current.value = "";
@@ -208,6 +208,7 @@ export function BulkQuestionImporter() {
     setUploadProgress(0);
     setUploadedCount(0);
     setUploadTotal(0);
+    onDone?.();
   };
 
   const removeOne = (i: number) => setParsed(parsed.filter((_, idx) => idx !== i));
@@ -232,6 +233,7 @@ export function BulkQuestionImporter() {
       toast.success(`Saved ${rows.length} question${rows.length === 1 ? "" : "s"}`);
       setParsed([]);
       setText("");
+      onDone?.();
     }
   };
 
@@ -485,6 +487,14 @@ export function BulkQuestionImporter() {
           </div>
         </div>
       </div>
+
+      {onDone && (
+        <div className="text-center">
+          <button onClick={onDone} className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors">
+            <RefreshCw className="h-3.5 w-3.5" /> Refresh question list
+          </button>
+        </div>
+      )}
     </div>
   );
 }

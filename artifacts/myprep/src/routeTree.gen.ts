@@ -11,17 +11,22 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as ToolsRouteImport } from './routes/tools'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SchoolsRouteImport } from './routes/schools'
+import { Route as SatRouteImport } from './routes/sat'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PracticeRouteImport } from './routes/practice'
 import { Route as PortalRouteImport } from './routes/portal'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as IeltsRouteImport } from './routes/ielts'
 import { Route as ExamsRouteImport } from './routes/exams'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CommunityRouteImport } from './routes/community'
+import { Route as CbtCentersRouteImport } from './routes/cbt-centers'
 import { Route as BookmarksRouteImport } from './routes/bookmarks'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -43,6 +48,11 @@ const ToolsRoute = ToolsRouteImport.update({
   path: '/tools',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
@@ -53,9 +63,19 @@ const SchoolsRoute = SchoolsRouteImport.update({
   path: '/schools',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SatRoute = SatRouteImport.update({
+  id: '/sat',
+  path: '/sat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PricingRoute = PricingRouteImport.update({
@@ -83,6 +103,11 @@ const LeaderboardRoute = LeaderboardRouteImport.update({
   path: '/leaderboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IeltsRoute = IeltsRouteImport.update({
+  id: '/ielts',
+  path: '/ielts',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ExamsRoute = ExamsRouteImport.update({
   id: '/exams',
   path: '/exams',
@@ -96,6 +121,11 @@ const DashboardRoute = DashboardRouteImport.update({
 const CommunityRoute = CommunityRouteImport.update({
   id: '/community',
   path: '/community',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CbtCentersRoute = CbtCentersRouteImport.update({
+  id: '/cbt-centers',
+  path: '/cbt-centers',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BookmarksRoute = BookmarksRouteImport.update({
@@ -154,17 +184,22 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/blog': typeof BlogRouteWithChildren
   '/bookmarks': typeof BookmarksRoute
+  '/cbt-centers': typeof CbtCentersRoute
   '/community': typeof CommunityRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/exams': typeof ExamsRoute
+  '/ielts': typeof IeltsRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/portal': typeof PortalRouteWithChildren
   '/practice': typeof PracticeRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
+  '/sat': typeof SatRoute
   '/schools': typeof SchoolsRoute
   '/signup': typeof SignupRoute
+  '/terms': typeof TermsRoute
   '/tools': typeof ToolsRoute
   '/welcome': typeof WelcomeRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -179,17 +214,22 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/blog': typeof BlogRouteWithChildren
   '/bookmarks': typeof BookmarksRoute
+  '/cbt-centers': typeof CbtCentersRoute
   '/community': typeof CommunityRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/exams': typeof ExamsRoute
+  '/ielts': typeof IeltsRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/portal': typeof PortalRouteWithChildren
   '/practice': typeof PracticeRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
+  '/sat': typeof SatRoute
   '/schools': typeof SchoolsRoute
   '/signup': typeof SignupRoute
+  '/terms': typeof TermsRoute
   '/tools': typeof ToolsRoute
   '/welcome': typeof WelcomeRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -205,17 +245,22 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/blog': typeof BlogRouteWithChildren
   '/bookmarks': typeof BookmarksRoute
+  '/cbt-centers': typeof CbtCentersRoute
   '/community': typeof CommunityRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/exams': typeof ExamsRoute
+  '/ielts': typeof IeltsRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/portal': typeof PortalRouteWithChildren
   '/practice': typeof PracticeRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
+  '/sat': typeof SatRoute
   '/schools': typeof SchoolsRoute
   '/signup': typeof SignupRoute
+  '/terms': typeof TermsRoute
   '/tools': typeof ToolsRoute
   '/welcome': typeof WelcomeRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -232,17 +277,22 @@ export interface FileRouteTypes {
     | '/admin'
     | '/blog'
     | '/bookmarks'
+    | '/cbt-centers'
     | '/community'
     | '/dashboard'
     | '/exams'
+    | '/ielts'
     | '/leaderboard'
     | '/login'
     | '/portal'
     | '/practice'
     | '/pricing'
+    | '/privacy'
     | '/profile'
+    | '/sat'
     | '/schools'
     | '/signup'
+    | '/terms'
     | '/tools'
     | '/welcome'
     | '/blog/$slug'
@@ -257,17 +307,22 @@ export interface FileRouteTypes {
     | '/admin'
     | '/blog'
     | '/bookmarks'
+    | '/cbt-centers'
     | '/community'
     | '/dashboard'
     | '/exams'
+    | '/ielts'
     | '/leaderboard'
     | '/login'
     | '/portal'
     | '/practice'
     | '/pricing'
+    | '/privacy'
     | '/profile'
+    | '/sat'
     | '/schools'
     | '/signup'
+    | '/terms'
     | '/tools'
     | '/welcome'
     | '/blog/$slug'
@@ -282,17 +337,22 @@ export interface FileRouteTypes {
     | '/admin'
     | '/blog'
     | '/bookmarks'
+    | '/cbt-centers'
     | '/community'
     | '/dashboard'
     | '/exams'
+    | '/ielts'
     | '/leaderboard'
     | '/login'
     | '/portal'
     | '/practice'
     | '/pricing'
+    | '/privacy'
     | '/profile'
+    | '/sat'
     | '/schools'
     | '/signup'
+    | '/terms'
     | '/tools'
     | '/welcome'
     | '/blog/$slug'
@@ -308,17 +368,22 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   BlogRoute: typeof BlogRouteWithChildren
   BookmarksRoute: typeof BookmarksRoute
+  CbtCentersRoute: typeof CbtCentersRoute
   CommunityRoute: typeof CommunityRouteWithChildren
   DashboardRoute: typeof DashboardRoute
   ExamsRoute: typeof ExamsRoute
+  IeltsRoute: typeof IeltsRoute
   LeaderboardRoute: typeof LeaderboardRoute
   LoginRoute: typeof LoginRoute
   PortalRoute: typeof PortalRouteWithChildren
   PracticeRoute: typeof PracticeRoute
   PricingRoute: typeof PricingRoute
+  PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRoute
+  SatRoute: typeof SatRoute
   SchoolsRoute: typeof SchoolsRoute
   SignupRoute: typeof SignupRoute
+  TermsRoute: typeof TermsRoute
   ToolsRoute: typeof ToolsRoute
   WelcomeRoute: typeof WelcomeRoute
   CbtSubjectIdRoute: typeof CbtSubjectIdRoute
@@ -340,6 +405,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ToolsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/signup': {
       id: '/signup'
       path: '/signup'
@@ -354,11 +426,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SchoolsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sat': {
+      id: '/sat'
+      path: '/sat'
+      fullPath: '/sat'
+      preLoaderRoute: typeof SatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile': {
       id: '/profile'
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pricing': {
@@ -396,6 +482,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LeaderboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ielts': {
+      id: '/ielts'
+      path: '/ielts'
+      fullPath: '/ielts'
+      preLoaderRoute: typeof IeltsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/exams': {
       id: '/exams'
       path: '/exams'
@@ -415,6 +508,13 @@ declare module '@tanstack/react-router' {
       path: '/community'
       fullPath: '/community'
       preLoaderRoute: typeof CommunityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cbt-centers': {
+      id: '/cbt-centers'
+      path: '/cbt-centers'
+      fullPath: '/cbt-centers'
+      preLoaderRoute: typeof CbtCentersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bookmarks': {
@@ -532,17 +632,22 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   BlogRoute: BlogRouteWithChildren,
   BookmarksRoute: BookmarksRoute,
+  CbtCentersRoute: CbtCentersRoute,
   CommunityRoute: CommunityRouteWithChildren,
   DashboardRoute: DashboardRoute,
   ExamsRoute: ExamsRoute,
+  IeltsRoute: IeltsRoute,
   LeaderboardRoute: LeaderboardRoute,
   LoginRoute: LoginRoute,
   PortalRoute: PortalRouteWithChildren,
   PracticeRoute: PracticeRoute,
   PricingRoute: PricingRoute,
+  PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRoute,
+  SatRoute: SatRoute,
   SchoolsRoute: SchoolsRoute,
   SignupRoute: SignupRoute,
+  TermsRoute: TermsRoute,
   ToolsRoute: ToolsRoute,
   WelcomeRoute: WelcomeRoute,
   CbtSubjectIdRoute: CbtSubjectIdRoute,

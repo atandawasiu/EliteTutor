@@ -5,11 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import myprepLogo from "@/assets/myprep-logo.png";
 
 export function Footer() {
   const { settings, footerLinks } = useSiteSettings();
+  const { user } = useAuth();
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -27,7 +29,10 @@ export function Footer() {
     e.preventDefault();
     if (!email.trim()) return;
     setSubmitting(true);
-    const { error } = await supabase.from("newsletter_subscribers").insert({ email: email.trim().toLowerCase() });
+    const payload: Record<string, string> = { email: email.trim().toLowerCase() };
+    if (user) payload.user_id = user.id;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase.from("newsletter_subscribers") as any).upsert(payload, { onConflict: "email" });
     setSubmitting(false);
     if (error) {
       if (error.code === "23505") toast.error("You're already subscribed!");

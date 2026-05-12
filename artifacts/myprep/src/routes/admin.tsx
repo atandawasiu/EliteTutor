@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Users, BookOpen, BarChart3, FileText, Plus, Trash2, Loader2, School as SchoolIcon, Megaphone, Newspaper, Layers, Wifi, MenuIcon, ArrowUp, ArrowDown, Pencil, Eye, EyeOff, Shield, ShieldOff, Activity, LayoutTemplate, CheckSquare, Square, Copy, Check } from "lucide-react";
+import { Users, BookOpen, BarChart3, FileText, Plus, Trash2, Loader2, School as SchoolIcon, Megaphone, Newspaper, Layers, Wifi, MenuIcon, ArrowUp, ArrowDown, Pencil, Eye, EyeOff, Shield, ShieldOff, Activity, LayoutTemplate, CheckSquare, Square, Copy, Check, FileSpreadsheet, RefreshCw, Pin, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -99,6 +99,8 @@ function AdminPanel() {
           <TabsTrigger value="testimonials">Testimonials</TabsTrigger>
           <TabsTrigger value="cms"><LayoutTemplate className="h-3.5 w-3.5 mr-1" />CMS Blocks</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
+          <TabsTrigger value="newsletter">Newsletter</TabsTrigger>
+          <TabsTrigger value="community_mod">Community</TabsTrigger>
           <TabsTrigger value="menu">Site Menu</TabsTrigger>
           <TabsTrigger value="site">Site Settings</TabsTrigger>
           <TabsTrigger value="footer">Footer Links</TabsTrigger>
@@ -114,6 +116,8 @@ function AdminPanel() {
         <TabsContent value="testimonials"><TestimonialsManager /></TabsContent>
         <TabsContent value="cms"><ContentBlocksManager /></TabsContent>
         <TabsContent value="users"><UsersManager /></TabsContent>
+        <TabsContent value="newsletter"><NewsletterManager /></TabsContent>
+        <TabsContent value="community_mod"><CommunityModManager /></TabsContent>
         <TabsContent value="menu"><SiteMenuManager /></TabsContent>
         <TabsContent value="site"><SiteSettingsManager /></TabsContent>
         <TabsContent value="footer"><FooterLinksManager /></TabsContent>
@@ -212,7 +216,7 @@ function QuestionsManager() {
 
   return (
     <div className="mt-4 space-y-6">
-      <BulkQuestionImporter />
+      <BulkQuestionImporter onDone={reload} />
 
       {/* Edit Modal */}
       {editQ && (
@@ -549,11 +553,11 @@ const ACCREDITATIONS: { value: AccreditationStatus; label: string }[] = [
 ];
 
 function SchoolsManager() {
-  type S = { id: string; name: string; slug: string; state: string | null; location?: string | null; cutoff_score: number | null; fees_min?: number | null; fees_max?: number | null; description?: string | null; website_url?: string | null; school_type: SchoolType; ownership: SchoolOwnership; accreditation: AccreditationStatus; country: string };
+  type S = { id: string; name: string; slug: string; state: string | null; location?: string | null; cutoff_score: number | null; fees_min?: number | null; fees_max?: number | null; description?: string | null; website_url?: string | null; map_embed_url?: string | null; school_type: SchoolType; ownership: SchoolOwnership; accreditation: AccreditationStatus; country: string };
   const emptySchool = {
     name: "", slug: "", state: "", location: "", cutoff_score: 180, fees_min: 0, fees_max: 0,
     description: "", school_type: "university" as SchoolType, ownership: "federal" as SchoolOwnership,
-    accreditation: "unknown" as AccreditationStatus, country: "Nigeria", website_url: "",
+    accreditation: "unknown" as AccreditationStatus, country: "Nigeria", website_url: "", map_embed_url: "",
   };
   const [schools, setSchools] = useState<S[]>([]);
   const [filterType, setFilterType] = useState<string>("all");
@@ -571,12 +575,14 @@ function SchoolsManager() {
 
   const save = async () => {
     if (!form.name || !form.slug) { toast.error("Name and slug required"); return; }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const payload: any = { ...form };
     if (editingId) {
-      const { error } = await supabase.from("schools").update(form).eq("id", editingId);
+      const { error } = await supabase.from("schools").update(payload).eq("id", editingId);
       if (error) { toast.error(error.message); return; }
       toast.success("School updated");
     } else {
-      const { error } = await supabase.from("schools").insert(form);
+      const { error } = await supabase.from("schools").insert(payload);
       if (error) { toast.error(error.message); return; }
       toast.success("School added");
     }
@@ -594,6 +600,7 @@ function SchoolsManager() {
       cutoff_score: s.cutoff_score ?? 0, fees_min: s.fees_min ?? 0, fees_max: s.fees_max ?? 0,
       description: s.description ?? "", school_type: s.school_type, ownership: s.ownership,
       accreditation: s.accreditation, country: s.country, website_url: s.website_url ?? "",
+      map_embed_url: s.map_embed_url ?? "",
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -646,6 +653,7 @@ function SchoolsManager() {
             <div><Label>Fees max (₦)</Label><Input type="number" value={form.fees_max} onChange={e => setForm({ ...form, fees_max: +e.target.value })} className="mt-1" /></div>
           </div>
           <div><Label>Website URL (optional)</Label><Input value={form.website_url} onChange={e => setForm({ ...form, website_url: e.target.value })} className="mt-1" placeholder="https://..." /></div>
+          <div><Label>Google Maps Embed URL (optional)</Label><Input value={(form as typeof form & { map_embed_url?: string }).map_embed_url ?? ""} onChange={e => setForm({ ...form, map_embed_url: e.target.value } as typeof form)} className="mt-1" placeholder="https://www.google.com/maps/embed?pb=..." /><p className="text-xs text-muted-foreground mt-1">Get this from Google Maps → Share → Embed a map → copy the src URL</p></div>
           <div><Label>Description</Label><Textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="mt-1" rows={2} /></div>
           <div className="flex gap-2">
             <Button onClick={save} className="flex-1 bg-gradient-hero text-white">{editingId ? "Save changes" : "Add School"}</Button>
@@ -1270,6 +1278,141 @@ function SiteMenuManager() {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+/* ---------- NEWSLETTER ---------- */
+function NewsletterManager() {
+  const [subs, setSubs] = useState<{ id: string; email: string; user_id: string | null; created_at: string }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+
+  const reload = async () => {
+    setLoading(true);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data } = await (supabase.from("newsletter_subscribers") as any).select("id, email, user_id, created_at").order("created_at", { ascending: false });
+    setSubs((data ?? []) as { id: string; email: string; user_id: string | null; created_at: string }[]);
+    setLoading(false);
+  };
+  useEffect(() => { reload(); }, []);
+
+  const remove = async (id: string) => {
+    if (!confirm("Unsubscribe this email?")) return;
+    const { error } = await supabase.from("newsletter_subscribers").delete().eq("id", id);
+    if (error) toast.error(error.message); else { toast.success("Removed"); reload(); }
+  };
+
+  const exportCsv = () => {
+    const rows = subs.map(s => `${s.email},${s.user_id ?? ""},${new Date(s.created_at).toLocaleDateString()}`);
+    const csv = ["email,user_id,subscribed_date", ...rows].join("\n");
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    const a = document.createElement("a"); a.href = url; a.download = "newsletter_subscribers.csv"; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const filtered = subs.filter(s => !search || s.email.toLowerCase().includes(search.toLowerCase()));
+
+  return (
+    <div className="mt-4 rounded-2xl border border-border bg-card p-5">
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        <h3 className="font-display font-semibold">Newsletter Subscribers ({subs.length.toLocaleString()})</h3>
+        <div className="ml-auto flex items-center gap-2 flex-wrap">
+          <Input placeholder="Search email..." value={search} onChange={e => setSearch(e.target.value)} className="h-8 w-48 text-xs" />
+          <Button size="sm" variant="outline" onClick={exportCsv} className="h-8 text-xs gap-1.5"><FileSpreadsheet className="h-3.5 w-3.5" /> Export CSV</Button>
+          <Button size="sm" variant="outline" onClick={reload} className="h-8 text-xs"><RefreshCw className="h-3.5 w-3.5" /></Button>
+        </div>
+      </div>
+      {loading ? (
+        <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+      ) : (
+        <div className="space-y-1.5 max-h-[600px] overflow-y-auto">
+          {filtered.length === 0 && <p className="text-center text-sm text-muted-foreground py-8">No subscribers found.</p>}
+          {filtered.map(s => (
+            <div key={s.id} className="flex items-center justify-between rounded-lg bg-secondary px-3 py-2">
+              <div className="min-w-0">
+                <p className="text-sm font-medium">{s.email}</p>
+                <p className="text-xs text-muted-foreground">
+                  {s.user_id ? `User: ${s.user_id.slice(0, 12)}…` : "No user account"} · {new Date(s.created_at).toLocaleDateString()}
+                </p>
+              </div>
+              <Button size="icon" variant="ghost" onClick={() => remove(s.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ---------- COMMUNITY MODERATION ---------- */
+function CommunityModManager() {
+  const [threads, setThreads] = useState<{ id: string; title: string; category: string; pinned: boolean; locked: boolean; view_count: number; author_id: string; created_at: string }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+
+  const reload = async () => {
+    setLoading(true);
+    const { data } = await supabase.from("forum_threads").select("id, title, category, pinned, locked, view_count, author_id, created_at").order("created_at", { ascending: false }).limit(200);
+    setThreads((data ?? []) as typeof threads);
+    setLoading(false);
+  };
+  useEffect(() => { reload(); }, []);
+
+  const togglePin = async (id: string, current: boolean) => {
+    const { error } = await supabase.from("forum_threads").update({ pinned: !current }).eq("id", id);
+    if (error) toast.error(error.message); else { toast.success(current ? "Unpinned" : "Pinned"); reload(); }
+  };
+  const toggleLock = async (id: string, current: boolean) => {
+    const { error } = await supabase.from("forum_threads").update({ locked: !current }).eq("id", id);
+    if (error) toast.error(error.message); else { toast.success(current ? "Unlocked" : "Locked"); reload(); }
+  };
+  const removeThread = async (id: string) => {
+    if (!confirm("Delete this thread and all its replies?")) return;
+    const { error } = await supabase.from("forum_threads").delete().eq("id", id);
+    if (error) toast.error(error.message); else { toast.success("Thread deleted"); reload(); }
+  };
+
+  const filtered = threads.filter(t => !search || t.title.toLowerCase().includes(search.toLowerCase()) || t.category.toLowerCase().includes(search.toLowerCase()));
+
+  return (
+    <div className="mt-4 rounded-2xl border border-border bg-card p-5">
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        <h3 className="font-display font-semibold">Forum Threads ({threads.length})</h3>
+        <div className="ml-auto flex items-center gap-2">
+          <Input placeholder="Search threads..." value={search} onChange={e => setSearch(e.target.value)} className="h-8 w-48 text-xs" />
+          <Button size="sm" variant="outline" onClick={reload} className="h-8 text-xs"><RefreshCw className="h-3.5 w-3.5" /></Button>
+        </div>
+      </div>
+      {loading ? (
+        <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+      ) : (
+        <div className="space-y-2 max-h-[600px] overflow-y-auto">
+          {filtered.map(t => (
+            <div key={t.id} className="flex items-center justify-between gap-3 rounded-lg bg-secondary p-3">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                  {t.pinned && <span className="text-[10px] font-bold text-accent bg-accent/10 px-1.5 py-0.5 rounded-full">PINNED</span>}
+                  {t.locked && <span className="text-[10px] font-bold text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">LOCKED</span>}
+                  <span className="text-[10px] font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">{t.category}</span>
+                </div>
+                <p className="font-medium text-sm line-clamp-1">{t.title}</p>
+                <p className="text-xs text-muted-foreground">{new Date(t.created_at).toLocaleDateString()} · {t.view_count} views</p>
+              </div>
+              <div className="flex items-center gap-1 shrink-0">
+                <Button size="sm" variant={t.pinned ? "default" : "outline"} onClick={() => togglePin(t.id, t.pinned)} className="h-7 text-xs gap-1 px-2">
+                  <Pin className="h-3 w-3" /> {t.pinned ? "Unpin" : "Pin"}
+                </Button>
+                <Button size="sm" variant={t.locked ? "default" : "outline"} onClick={() => toggleLock(t.id, t.locked)} className="h-7 text-xs gap-1 px-2">
+                  <Lock className="h-3 w-3" /> {t.locked ? "Unlock" : "Lock"}
+                </Button>
+                <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => removeThread(t.id)}><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
+              </div>
+            </div>
+          ))}
+          {filtered.length === 0 && <p className="text-center text-sm text-muted-foreground py-8">No threads found.</p>}
+        </div>
+      )}
     </div>
   );
 }
