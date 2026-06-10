@@ -12,7 +12,7 @@ export function CTASection() {
             Ready to Crush Your Next Exam?
           </h2>
           <p className="mx-auto mt-4 max-w-md text-white/80">
-            Join 250,000+ students already preparing smarter with MyPrep. It's free to get started.
+            Join 250,000+ students already preparing smarter with Elite Tutor. It's free to get started.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <Link to="/signup">

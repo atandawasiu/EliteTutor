@@ -20,12 +20,12 @@ function TermsPage() {
 
       <div className="prose prose-neutral dark:prose-invert max-w-none space-y-8 text-sm leading-relaxed text-foreground">
         <Section title="1. Acceptance of Terms">
-          <p>By accessing or using MyPrep ("the Platform", "we", "our", "us"), you agree to be bound by these Terms &amp; Conditions and all applicable laws and regulations. If you do not agree with any part of these terms, you may not use our Platform.</p>
+          <p>By accessing or using Elite Tutor ("the Platform", "we", "our", "us"), you agree to be bound by these Terms &amp; Conditions and all applicable laws and regulations. If you do not agree with any part of these terms, you may not use our Platform.</p>
           <p>These terms apply to all visitors, users, students, and any other persons who access or use our services.</p>
         </Section>
 
         <Section title="2. Description of Service">
-          <p>MyPrep is Africa's leading exam preparation platform providing:</p>
+          <p>Elite Tutor is Africa's leading exam preparation platform providing:</p>
           <ul>
             <li>Computer-Based Test (CBT) practice for JAMB, WAEC, NECO, IELTS, SAT, GRE and other examinations</li>
             <li>AI-powered explanations and study assistance</li>
@@ -39,7 +39,7 @@ function TermsPage() {
 
         <Section title="3. User Accounts">
           <p><strong>Registration:</strong> To access certain features, you must register for an account. You agree to provide accurate, current, and complete information during registration and to update such information to keep it accurate, current, and complete.</p>
-          <p><strong>Account Security:</strong> You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account. You must immediately notify MyPrep of any unauthorized use of your account.</p>
+          <p><strong>Account Security:</strong> You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account. You must immediately notify Elite Tutor of any unauthorized use of your account.</p>
           <p><strong>Age Requirement:</strong> Users must be at least 13 years old. Users between 13 and 18 must have parental consent. By registering, you represent that you meet these requirements.</p>
           <p><strong>One Account Per User:</strong> Each person may maintain only one active account. Creating multiple accounts may result in termination of all accounts.</p>
         </Section>
@@ -67,13 +67,13 @@ function TermsPage() {
         </Section>
 
         <Section title="6. Intellectual Property">
-          <p>All content on the Platform, including but not limited to text, graphics, logos, images, audio clips, video clips, question banks, and software, is the property of MyPrep or its content suppliers and is protected by Nigerian and international intellectual property laws.</p>
+          <p>All content on the Platform, including but not limited to text, graphics, logos, images, audio clips, video clips, question banks, and software, is the property of Elite Tutor or its content suppliers and is protected by Nigerian and international intellectual property laws.</p>
           <p>Past examination questions may be sourced from publicly available materials and examination bodies including JAMB, WAEC, NECO, and others. We respect the intellectual property rights of these organizations.</p>
-          <p>User-generated content (community posts, discussions) remains the property of the respective users. By posting content, you grant MyPrep a non-exclusive, royalty-free license to use, display, and distribute such content on the Platform.</p>
+          <p>User-generated content (community posts, discussions) remains the property of the respective users. By posting content, you grant Elite Tutor a non-exclusive, royalty-free license to use, display, and distribute such content on the Platform.</p>
         </Section>
 
         <Section title="7. AI-Powered Features">
-          <p>MyPrep uses artificial intelligence to provide explanations, study assistance, and personalized learning recommendations. Please note:</p>
+          <p>Elite Tutor uses artificial intelligence to provide explanations, study assistance, and personalized learning recommendations. Please note:</p>
           <ul>
             <li>AI-generated content is for educational assistance only and should not be taken as definitive answers</li>
             <li>Always verify important information with official sources and qualified educators</li>
@@ -87,7 +87,7 @@ function TermsPage() {
         </Section>
 
         <Section title="9. Disclaimer of Warranties">
-          <p>The Platform is provided on an "as is" and "as available" basis without warranties of any kind, either express or implied. MyPrep does not warrant that:</p>
+          <p>The Platform is provided on an "as is" and "as available" basis without warranties of any kind, either express or implied. Elite Tutor does not warrant that:</p>
           <ul>
             <li>The Platform will be uninterrupted, secure, or error-free</li>
             <li>Results obtained from using the Platform will be accurate or reliable</li>
@@ -98,7 +98,7 @@ function TermsPage() {
         </Section>
 
         <Section title="10. Limitation of Liability">
-          <p>To the maximum extent permitted by applicable law, MyPrep shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profits, data, or goodwill, arising out of or in connection with your use of the Platform.</p>
+          <p>To the maximum extent permitted by applicable law, Elite Tutor shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profits, data, or goodwill, arising out of or in connection with your use of the Platform.</p>
           <p>Our total liability to you for any claim arising from these Terms or your use of the Platform shall not exceed the amount you paid to us in the 12 months preceding the claim.</p>
         </Section>
 
@@ -119,14 +119,14 @@ function TermsPage() {
         <Section title="14. Contact Us">
           <p>If you have questions about these Terms, please contact us:</p>
           <ul>
-            <li><strong>Email:</strong> legal@myprep.ng</li>
-            <li><strong>Address:</strong> MyPrep, Lagos, Nigeria</li>
+            <li><strong>Email:</strong> legal@elitetutor.ng</li>
+            <li><strong>Address:</strong> Elite Tutor, Lagos, Nigeria</li>
           </ul>
         </Section>
       </div>
 
       <div className="mt-10 rounded-xl border border-border bg-secondary/30 p-5 text-center">
-        <p className="text-sm text-muted-foreground">By using MyPrep, you acknowledge that you have read, understood, and agree to be bound by these Terms &amp; Conditions.</p>
+        <p className="text-sm text-muted-foreground">By using Elite Tutor, you acknowledge that you have read, understood, and agree to be bound by these Terms &amp; Conditions.</p>
         <div className="mt-3 flex justify-center gap-3">
           <Link to="/privacy" className="text-sm text-primary hover:underline">Privacy Policy</Link>
           <span className="text-muted-foreground">·</span>

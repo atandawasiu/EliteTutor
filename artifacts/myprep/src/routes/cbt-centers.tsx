@@ -167,7 +167,7 @@ export default function CbtCentersPage() {
         <h2 className="font-display font-bold text-lg mb-3">Prepare Before Your Visit</h2>
         <div className="grid gap-4 sm:grid-cols-3">
           {[
-            { title: "Practice Online First", desc: "Use MyPrep's CBT engine to practice in exam conditions before visiting a physical centre.", icon: "🖥️" },
+            { title: "Practice Online First", desc: "Use Elite Tutor's CBT engine to practice in exam conditions before visiting a physical centre.", icon: "🖥️" },
             { title: "What to Bring", desc: "Registration slip, valid national ID/NIN, printed exam schedule, and small fee for centre usage.", icon: "📋" },
             { title: "Book in Advance", desc: "Some centres require prior booking. Call ahead or visit the centre website to confirm availability.", icon: "📅" },
           ].map(tip => (

@@ -106,7 +106,7 @@ function ProfilePage() {
               <button onClick={copyId} className="text-muted-foreground hover:text-foreground" aria-label="Copy student ID">
                 {copied ? <CheckCircle2 className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
               </button>
-              <span className="text-xs text-muted-foreground">your MyPrep ID</span>
+              <span className="text-xs text-muted-foreground">your Elite Tutor ID</span>
             </div>
           </div>
         </div>

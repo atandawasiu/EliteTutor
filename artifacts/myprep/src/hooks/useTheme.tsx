@@ -4,7 +4,7 @@ type Theme = "light" | "dark";
 type Ctx = { theme: Theme; toggle: () => void; setTheme: (t: Theme) => void };
 
 const ThemeContext = createContext<Ctx | undefined>(undefined);
-const STORAGE_KEY = "myprep-theme";
+const STORAGE_KEY = "elitetutor-theme";
 
 function applyTheme(t: Theme) {
   if (typeof document === "undefined") return;

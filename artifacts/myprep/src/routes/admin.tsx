@@ -64,7 +64,7 @@ function AdminPanel() {
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-bold">Admin Dashboard</h1>
-          <p className="text-sm text-muted-foreground">Manage every aspect of MyPrep in real-time</p>
+          <p className="text-sm text-muted-foreground">Manage every aspect of Elite Tutor in real-time</p>
         </div>
         <span className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-3 py-1 text-xs font-medium text-success">
           <Wifi className="h-3.5 w-3.5" /> Live

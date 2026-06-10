@@ -37,7 +37,7 @@ const SCORE_BANDS = [
 const TIPS = [
   { icon: Brain, title: "Understand the Format", desc: "The digital SAT is adaptive — each module's difficulty adjusts based on your performance in the previous module." },
   { icon: Clock, title: "Time Management", desc: "Practice pacing: ~1.2 min per Reading/Writing question and ~1.6 min per Math question." },
-  { icon: Target, title: "Focus on Weaknesses", desc: "Use MyPrep's analytics to identify your weak areas and target those topics in your study sessions." },
+  { icon: Target, title: "Focus on Weaknesses", desc: "Use Elite Tutor's analytics to identify your weak areas and target those topics in your study sessions." },
   { icon: TrendingUp, title: "Practice Daily", desc: "Consistent daily practice (45-60 minutes) for 2-3 months is more effective than cramming." },
   { icon: Calculator, title: "Math Strategy", desc: "Many Math questions can be solved by plugging answer choices or using estimation instead of complex algebra." },
   { icon: BookOpen, title: "Read Actively", desc: "Practice active reading — identify the main idea, author's purpose, and evidence for claims as you read." },
@@ -175,7 +175,7 @@ export default function SatPage() {
       <div className="rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-accent/80 p-8 text-center text-white">
         <Award className="mx-auto h-12 w-12 mb-4 opacity-90" />
         <h2 className="font-display text-2xl font-bold">Ready to Ace the SAT?</h2>
-        <p className="mt-2 text-white/80">Join thousands of students who improved their scores with MyPrep's SAT practice materials and AI-powered study tools.</p>
+        <p className="mt-2 text-white/80">Join thousands of students who improved their scores with Elite Tutor's SAT practice materials and AI-powered study tools.</p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link to="/signup"><Button size="lg" className="bg-white text-primary hover:bg-white/90 font-semibold">Create Free Account <ArrowRight className="h-4 w-4 ml-2" /></Button></Link>
           <Link to="/pricing"><Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">View Premium Plans</Button></Link>

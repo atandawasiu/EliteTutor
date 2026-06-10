@@ -21,7 +21,7 @@ function PrivacyPage() {
       <div className="space-y-6 text-sm text-foreground">
         <div className="rounded-xl border border-primary/20 bg-primary/5 p-5">
           <p className="font-medium text-primary">Your privacy matters to us</p>
-          <p className="mt-1 text-sm text-muted-foreground">This Privacy Policy explains how MyPrep collects, uses, shares, and protects your personal information when you use our platform. We are committed to being transparent about our data practices.</p>
+          <p className="mt-1 text-sm text-muted-foreground">This Privacy Policy explains how Elite Tutor collects, uses, shares, and protects your personal information when you use our platform. We are committed to being transparent about our data practices.</p>
         </div>
 
         <Section title="1. Information We Collect">
@@ -59,7 +59,7 @@ function PrivacyPage() {
             Trusted third-party companies that help us operate the Platform, including cloud hosting (Supabase), payment processors, email service providers, and AI service providers. These partners are contractually obligated to protect your data.
           </SubSection>
           <SubSection title="Legal Requirements">
-            We may disclose your information if required by law, court order, or governmental authority, or to protect the rights, property, or safety of MyPrep, our users, or others.
+            We may disclose your information if required by law, court order, or governmental authority, or to protect the rights, property, or safety of Elite Tutor, our users, or others.
           </SubSection>
           <SubSection title="Business Transfers">
             In the event of a merger, acquisition, or sale of all or a portion of our assets, your information may be transferred as part of that transaction.
@@ -98,12 +98,12 @@ function PrivacyPage() {
           <SubSection title="Deletion">You can request deletion of your account and associated data. Note that some data may be retained for legal or legitimate business purposes.</SubSection>
           <SubSection title="Data Portability">You can request a copy of your data in a structured, commonly used format.</SubSection>
           <SubSection title="Opt-out">You can opt out of marketing communications at any time by clicking "unsubscribe" in emails or contacting us directly.</SubSection>
-          <p className="mt-3 text-muted-foreground">To exercise these rights, please contact us at privacy@myprep.ng.</p>
+          <p className="mt-3 text-muted-foreground">To exercise these rights, please contact us at privacy@elitetutor.ng.</p>
         </Section>
 
         <Section title="7. Children's Privacy">
           <p className="text-muted-foreground">Our Platform is intended for users aged 13 and above. Users between 13 and 18 should have parental consent. We do not knowingly collect personal information from children under 13. If we discover we have inadvertently collected information from a child under 13, we will promptly delete it.</p>
-          <p className="mt-2 text-muted-foreground">Parents or guardians who believe their child under 13 has provided us with personal information should contact us at privacy@myprep.ng.</p>
+          <p className="mt-2 text-muted-foreground">Parents or guardians who believe their child under 13 has provided us with personal information should contact us at privacy@elitetutor.ng.</p>
         </Section>
 
         <Section title="8. Data Retention">
@@ -126,15 +126,15 @@ function PrivacyPage() {
         <Section title="11. Contact Us">
           <p className="text-muted-foreground">If you have questions, concerns, or requests regarding this Privacy Policy or your personal data, please contact our Data Protection team:</p>
           <div className="mt-3 space-y-1 text-muted-foreground">
-            <p><strong className="text-foreground">Email:</strong> privacy@myprep.ng</p>
-            <p><strong className="text-foreground">Address:</strong> MyPrep Data Protection Team, Lagos, Nigeria</p>
+            <p><strong className="text-foreground">Email:</strong> privacy@elitetutor.ng</p>
+            <p><strong className="text-foreground">Address:</strong> Elite Tutor Data Protection Team, Lagos, Nigeria</p>
             <p><strong className="text-foreground">Response time:</strong> We aim to respond to all privacy requests within 30 days.</p>
           </div>
         </Section>
       </div>
 
       <div className="mt-10 rounded-xl border border-border bg-secondary/30 p-5 text-center">
-        <p className="text-sm text-muted-foreground">By using MyPrep, you acknowledge that you have read and understood this Privacy Policy.</p>
+        <p className="text-sm text-muted-foreground">By using Elite Tutor, you acknowledge that you have read and understood this Privacy Policy.</p>
         <div className="mt-3 flex justify-center gap-3">
           <Link to="/terms" className="text-sm text-primary hover:underline">Terms &amp; Conditions</Link>
           <span className="text-muted-foreground">·</span>

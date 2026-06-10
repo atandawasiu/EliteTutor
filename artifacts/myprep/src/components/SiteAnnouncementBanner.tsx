@@ -11,7 +11,7 @@ type Announcement = {
   expires_at: string | null;
 };
 
-const STORAGE_KEY = "myprep-dismissed-announcements";
+const STORAGE_KEY = "elitetutor-dismissed-announcements";
 
 const TYPE_STYLES: Record<string, { wrap: string; Icon: typeof Info }> = {
   info:    { wrap: "bg-primary text-primary-foreground",       Icon: Info },

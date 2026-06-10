@@ -1,4 +1,4 @@
-# MyPrep
+# Elite Tutor
 
 Africa's leading exam preparation platform for JAMB, WAEC, NECO, IELTS, SAT, GRE and 12+ exams — with AI-powered CBT, score tracking, smart insights, and bulk question management.
 

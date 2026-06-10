@@ -64,7 +64,7 @@ function WelcomePage() {
   };
 
   const steps = [
-    { title: "Welcome to MyPrep 👋", subtitle: "Let's personalise your study plan in 3 quick steps." },
+    { title: "Welcome to Elite Tutor 👋", subtitle: "Let's personalise your study plan in 3 quick steps." },
     { title: "Which exams are you preparing for?", subtitle: "Pick one or more — you can change this anytime." },
     { title: "Choose your subjects", subtitle: "We'll surface practice questions and notes for these first." },
     { title: "Set your daily study goal", subtitle: "Consistency beats intensity. How many minutes per day?" },

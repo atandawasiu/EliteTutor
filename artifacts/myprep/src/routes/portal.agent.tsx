@@ -28,7 +28,7 @@ function AgentDashboard() {
         <p className="mt-1 text-sm text-muted-foreground">Share to earn commission on each premium signup.</p>
         <div className="mt-3 flex items-center gap-2 rounded-lg bg-secondary p-3">
           <Share2 className="h-4 w-4 text-muted-foreground" />
-          <code className="flex-1 truncate text-xs">https://myprep.app/?ref=YOUR_CODE</code>
+          <code className="flex-1 truncate text-xs">https://elitetutor.ng/?ref=YOUR_CODE</code>
         </div>
         <p className="mt-3 text-xs text-muted-foreground">Referral tracking ships next release.</p>
       </div>
