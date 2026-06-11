@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Users, BookOpen, BarChart3, FileText, Plus, Trash2, Loader2, School as SchoolIcon, Megaphone, Newspaper, Layers, Wifi, MenuIcon, ArrowUp, ArrowDown, Pencil, Eye, EyeOff, Shield, ShieldOff, Activity, LayoutTemplate, CheckSquare, Square, Copy, Check, FileSpreadsheet, RefreshCw, Pin, Lock } from "lucide-react";
+import { Users, BookOpen, BarChart3, FileText, Plus, Trash2, Loader2, School as SchoolIcon, Megaphone, Newspaper, Layers, Wifi, MenuIcon, ArrowUp, ArrowDown, Pencil, Eye, EyeOff, Shield, ShieldOff, Activity, LayoutTemplate, CheckSquare, Square, Copy, Check, FileSpreadsheet, RefreshCw, Pin, Lock, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,20 +36,23 @@ function useRealtime(table: string, onChange: () => void) {
 }
 
 function AdminPanel() {
-  const [stats, setStats] = useState({ users: 0, exams: 0, questions: 0, attempts: 0, posts: 0, schools: 0 });
+  const [stats, setStats] = useState({ users: 0, exams: 0, questions: 0, attempts: 0, posts: 0, schools: 0, subscribers: 0 });
 
   const reload = async () => {
-    const [u, e, q, a, p, s] = await Promise.all([
+    const [u, e, q, a, p, s, n] = await Promise.all([
       supabase.from("profiles").select("*", { count: "exact", head: true }),
       supabase.from("exams").select("*", { count: "exact", head: true }),
       supabase.from("questions").select("*", { count: "exact", head: true }),
       supabase.from("attempts").select("*", { count: "exact", head: true }),
       supabase.from("blog_posts").select("*", { count: "exact", head: true }),
       supabase.from("schools").select("*", { count: "exact", head: true }),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (supabase.from("newsletter_subscribers") as any).select("*", { count: "exact", head: true }),
     ]);
     setStats({
       users: u.count ?? 0, exams: e.count ?? 0, questions: q.count ?? 0,
       attempts: a.count ?? 0, posts: p.count ?? 0, schools: s.count ?? 0,
+      subscribers: n.count ?? 0,
     });
   };
   useEffect(() => { reload(); }, []);
@@ -72,7 +75,7 @@ function AdminPanel() {
         </span>
       </div>
 
-      <div className="mb-8 grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="mb-8 grid gap-3 grid-cols-2 sm:grid-cols-4 lg:grid-cols-7">
         {[
           { label: "Users", value: stats.users, icon: Users, color: "text-primary bg-primary/10" },
           { label: "Exams", value: stats.exams, icon: BookOpen, color: "text-accent bg-accent/10" },
@@ -80,6 +83,7 @@ function AdminPanel() {
           { label: "Attempts", value: stats.attempts, icon: BarChart3, color: "text-success bg-success/10" },
           { label: "Posts", value: stats.posts, icon: Newspaper, color: "text-chart-4 bg-chart-4/10" },
           { label: "Schools", value: stats.schools, icon: SchoolIcon, color: "text-chart-5 bg-chart-5/10" },
+          { label: "Subscribers", value: stats.subscribers, icon: Mail, color: "text-purple-500 bg-purple-500/10" },
         ].map(s => (
           <div key={s.label} className="rounded-2xl border border-border bg-card p-4">
             <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${s.color}`}><s.icon className="h-4.5 w-4.5" /></div>

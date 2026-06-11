@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Loader2, Clock, ChevronLeft, ChevronRight, Flag, CheckCircle2,
   XCircle, Bookmark, Sparkles, Pause, Play, AlertTriangle, RotateCcw,
-  BarChart2, ChevronDown, Filter, Hash, Calendar, Layers, Zap
+  BarChart2, ChevronDown, Filter, Hash, Calendar, Layers, Zap, FlaskConical,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -71,6 +71,11 @@ function CBTEngine() {
   const [explainCtx, setExplainCtx] = useState<{ question: string; options: string[]; correctAnswer: string; userAnswer?: string } | undefined>();
   const [explainSignal, setExplainSignal] = useState(0);
   const [explainPrompt, setExplainPrompt] = useState<string | undefined>();
+
+  type WolframPod = { title: string; id: string; subpods: { title: string; plaintext: string; img?: { src: string; alt: string } }[] };
+  type WolframSolveResult = { success: true; pods: WolframPod[]; inputstring: string } | { success: false; didyoumean: string[]; tips: string[] };
+  type WolframState = { loading: boolean; result: WolframSolveResult | null; error: string | null };
+  const [wolframResults, setWolframResults] = useState<Record<string, WolframState>>({});
 
   const startTimeRef = useRef<number>(0);
   const storageKey = `cbt_${subjectId}_${user?.id}`;
@@ -147,6 +152,22 @@ function CBTEngine() {
     if (n.has(qid)) { n.delete(qid); await supabase.from("bookmarks").delete().eq("user_id", user.id).eq("question_id", qid); }
     else { n.add(qid); await supabase.from("bookmarks").insert({ user_id: user.id, question_id: qid }); }
     setBookmarked(n);
+  };
+
+  const solveWithWolfram = async (qid: string, question: string) => {
+    setWolframResults(p => ({ ...p, [qid]: { loading: true, result: null, error: null } }));
+    try {
+      const res = await fetch(`/api/wolfram?q=${encodeURIComponent(question)}&format=plaintext,image`);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({})) as { error?: string };
+        setWolframResults(p => ({ ...p, [qid]: { loading: false, result: null, error: err.error ?? "Request failed" } }));
+        return;
+      }
+      const data = await res.json() as WolframSolveResult;
+      setWolframResults(p => ({ ...p, [qid]: { loading: false, result: data, error: null } }));
+    } catch {
+      setWolframResults(p => ({ ...p, [qid]: { loading: false, result: null, error: "Could not reach WolframAlpha" } }));
+    }
   };
 
   const submitExam = async (auto = false) => {
@@ -421,7 +442,7 @@ function CBTEngine() {
                   ))}
                 </div>
                 {q.explanation && <p className="mt-3 ml-8 text-xs text-muted-foreground italic border-l-2 border-primary/30 pl-3">💡 {q.explanation}</p>}
-                <div className="mt-3 ml-8">
+                <div className="mt-3 ml-8 flex flex-wrap gap-2">
                   <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={() => {
                     setExplainCtx({ question: q.question, options: q.options, correctAnswer: q.correct_answer, userAnswer: userAns });
                     setExplainPrompt("Please explain this question step-by-step in simple terms.");
@@ -429,7 +450,48 @@ function CBTEngine() {
                   }}>
                     <Sparkles className="h-3.5 w-3.5" /> Ask AI to explain
                   </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1.5 text-xs text-purple-600 border-purple-200 hover:bg-purple-50 dark:text-purple-400 dark:border-purple-800 dark:hover:bg-purple-950"
+                    disabled={wolframResults[q.id]?.loading}
+                    onClick={() => void solveWithWolfram(q.id, q.question)}
+                  >
+                    {wolframResults[q.id]?.loading
+                      ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Solving…</>
+                      : <><FlaskConical className="h-3.5 w-3.5" /> Solve with Wolfram</>}
+                  </Button>
                 </div>
+                {(() => {
+                  const wr = wolframResults[q.id];
+                  if (!wr || wr.loading) return null;
+                  return (
+                    <div className="mt-2 ml-8 rounded-xl border border-purple-200 bg-purple-50/50 p-3 dark:border-purple-800 dark:bg-purple-950/30">
+                      {wr.error && <p className="text-xs text-destructive">⚠ {wr.error}</p>}
+                      {wr.result && !wr.result.success && (
+                        <p className="text-xs text-muted-foreground">No computational result for this question type.</p>
+                      )}
+                      {wr.result && wr.result.success && (
+                        <div className="space-y-2">
+                          <p className="text-xs font-semibold text-purple-700 dark:text-purple-300 flex items-center gap-1">
+                            <FlaskConical className="h-3 w-3" /> WolframAlpha Solution
+                          </p>
+                          {wr.result.pods.slice(0, 5).map(pod => (
+                            <div key={pod.id} className="border-t border-purple-100 dark:border-purple-900 pt-1.5 first:border-0 first:pt-0">
+                              <p className="text-xs font-medium text-foreground mb-1">{pod.title}</p>
+                              {pod.subpods.map((sp, si) => (
+                                <div key={si}>
+                                  {sp.plaintext && <pre className="whitespace-pre-wrap font-mono text-xs text-foreground leading-relaxed">{sp.plaintext}</pre>}
+                                  {sp.img && <img src={sp.img.src} alt={sp.img.alt || pod.title} className="max-w-full rounded mt-1" loading="lazy" />}
+                                </div>
+                              ))}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
             );
           })}
@@ -579,13 +641,56 @@ function CBTEngine() {
                       )}
                     </div>
                     {q.explanation && <p className="text-xs text-muted-foreground italic border-l-2 border-primary/30 pl-3">{q.explanation}</p>}
-                    <Button size="sm" variant="outline" className="mt-2 gap-1.5 text-xs" onClick={() => {
-                      setExplainCtx({ question: q.question, options: q.options, correctAnswer: q.correct_answer, userAnswer: answers[q.id] });
-                      setExplainPrompt("Explain this question in detail with step-by-step working.");
-                      setExplainSignal(Date.now());
-                    }}>
-                      <Sparkles className="h-3.5 w-3.5" /> Ask AI to explain
-                    </Button>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={() => {
+                        setExplainCtx({ question: q.question, options: q.options, correctAnswer: q.correct_answer, userAnswer: answers[q.id] });
+                        setExplainPrompt("Explain this question in detail with step-by-step working.");
+                        setExplainSignal(Date.now());
+                      }}>
+                        <Sparkles className="h-3.5 w-3.5" /> Ask AI to explain
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-1.5 text-xs text-purple-600 border-purple-200 hover:bg-purple-50 dark:text-purple-400 dark:border-purple-800 dark:hover:bg-purple-950"
+                        disabled={wolframResults[q.id]?.loading}
+                        onClick={() => void solveWithWolfram(q.id, q.question)}
+                      >
+                        {wolframResults[q.id]?.loading
+                          ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Solving…</>
+                          : <><FlaskConical className="h-3.5 w-3.5" /> Solve with Wolfram</>}
+                      </Button>
+                    </div>
+                    {(() => {
+                      const wr = wolframResults[q.id];
+                      if (!wr || wr.loading) return null;
+                      return (
+                        <div className="mt-2 rounded-xl border border-purple-200 bg-purple-50/50 p-3 dark:border-purple-800 dark:bg-purple-950/30">
+                          {wr.error && <p className="text-xs text-destructive">⚠ {wr.error}</p>}
+                          {wr.result && !wr.result.success && (
+                            <p className="text-xs text-muted-foreground">No computational result for this question type.</p>
+                          )}
+                          {wr.result && wr.result.success && (
+                            <div className="space-y-2">
+                              <p className="text-xs font-semibold text-purple-700 dark:text-purple-300 flex items-center gap-1">
+                                <FlaskConical className="h-3 w-3" /> WolframAlpha Solution
+                              </p>
+                              {wr.result.pods.slice(0, 5).map(pod => (
+                                <div key={pod.id} className="border-t border-purple-100 dark:border-purple-900 pt-1.5 first:border-0 first:pt-0">
+                                  <p className="text-xs font-medium text-foreground mb-1">{pod.title}</p>
+                                  {pod.subpods.map((sp, si) => (
+                                    <div key={si}>
+                                      {sp.plaintext && <pre className="whitespace-pre-wrap font-mono text-xs text-foreground leading-relaxed">{sp.plaintext}</pre>}
+                                      {sp.img && <img src={sp.img.src} alt={sp.img.alt || pod.title} className="max-w-full rounded mt-1" loading="lazy" />}
+                                    </div>
+                                  ))}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </motion.div>
                 )}
               </div>
