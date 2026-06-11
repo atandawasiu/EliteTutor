@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ImageUpload } from "@/components/ui/ImageUpload";
 import { RequireAuth } from "@/components/RequireAuth";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -119,9 +120,12 @@ function ProfilePage() {
             <Input className="mt-1.5" value={p.full_name ?? ""} onChange={e => set("full_name", e.target.value)} />
           </div>
           <div className="sm:col-span-2">
-            <Label>Avatar URL</Label>
-            <Input className="mt-1.5" placeholder="https://..." value={p.avatar_url ?? ""} onChange={e => set("avatar_url", e.target.value)} />
-            <p className="mt-1 text-xs text-muted-foreground">Paste a link to your profile image.</p>
+            <ImageUpload
+              label="Profile Photo"
+              value={p.avatar_url ?? ""}
+              onChange={url => set("avatar_url", url)}
+              previewClass="h-20 w-20 rounded-full"
+            />
           </div>
           <div>
             <Label>Email</Label>

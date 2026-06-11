@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ImageUpload } from "@/components/ui/ImageUpload";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
@@ -553,11 +554,12 @@ const ACCREDITATIONS: { value: AccreditationStatus; label: string }[] = [
 ];
 
 function SchoolsManager() {
-  type S = { id: string; name: string; slug: string; state: string | null; location?: string | null; cutoff_score: number | null; fees_min?: number | null; fees_max?: number | null; description?: string | null; website_url?: string | null; map_embed_url?: string | null; school_type: SchoolType; ownership: SchoolOwnership; accreditation: AccreditationStatus; country: string };
+  type S = { id: string; name: string; slug: string; state: string | null; location?: string | null; cutoff_score: number | null; fees_min?: number | null; fees_max?: number | null; description?: string | null; website_url?: string | null; map_embed_url?: string | null; logo_url?: string | null; school_type: SchoolType; ownership: SchoolOwnership; accreditation: AccreditationStatus; country: string };
   const emptySchool = {
     name: "", slug: "", state: "", location: "", cutoff_score: 180, fees_min: 0, fees_max: 0,
     description: "", school_type: "university" as SchoolType, ownership: "federal" as SchoolOwnership,
     accreditation: "unknown" as AccreditationStatus, country: "Nigeria", website_url: "", map_embed_url: "",
+    logo_url: "",
   };
   const [schools, setSchools] = useState<S[]>([]);
   const [filterType, setFilterType] = useState<string>("all");
@@ -567,7 +569,7 @@ function SchoolsManager() {
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const reload = async () => {
-    const { data } = await supabase.from("schools").select("id, name, slug, state, location, cutoff_score, fees_min, fees_max, description, website_url, school_type, ownership, accreditation, country").order("name");
+    const { data } = await supabase.from("schools").select("id, name, slug, state, location, cutoff_score, fees_min, fees_max, description, website_url, logo_url, school_type, ownership, accreditation, country").order("name");
     setSchools((data ?? []) as S[]);
   };
   useEffect(() => { reload(); }, []);
@@ -600,7 +602,7 @@ function SchoolsManager() {
       cutoff_score: s.cutoff_score ?? 0, fees_min: s.fees_min ?? 0, fees_max: s.fees_max ?? 0,
       description: s.description ?? "", school_type: s.school_type, ownership: s.ownership,
       accreditation: s.accreditation, country: s.country, website_url: s.website_url ?? "",
-      map_embed_url: s.map_embed_url ?? "",
+      map_embed_url: s.map_embed_url ?? "", logo_url: s.logo_url ?? "",
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -654,6 +656,14 @@ function SchoolsManager() {
           </div>
           <div><Label>Website URL (optional)</Label><Input value={form.website_url} onChange={e => setForm({ ...form, website_url: e.target.value })} className="mt-1" placeholder="https://..." /></div>
           <div><Label>Google Maps Embed URL (optional)</Label><Input value={(form as typeof form & { map_embed_url?: string }).map_embed_url ?? ""} onChange={e => setForm({ ...form, map_embed_url: e.target.value } as typeof form)} className="mt-1" placeholder="https://www.google.com/maps/embed?pb=..." /><p className="text-xs text-muted-foreground mt-1">Get this from Google Maps → Share → Embed a map → copy the src URL</p></div>
+          <div>
+            <ImageUpload
+              label="School photo / logo (optional)"
+              value={(form as typeof form & { logo_url?: string }).logo_url ?? ""}
+              onChange={url => setForm({ ...form, logo_url: url } as typeof form)}
+              previewClass="h-24 w-full rounded-lg object-cover"
+            />
+          </div>
           <div><Label>Description</Label><Textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="mt-1" rows={2} /></div>
           <div className="flex gap-2">
             <Button onClick={save} className="flex-1 bg-gradient-hero text-white">{editingId ? "Save changes" : "Add School"}</Button>
@@ -766,7 +776,14 @@ function BlogManager() {
               </SelectContent>
             </Select>
           </div>
-          <div><Label>Cover image URL (optional)</Label><Input value={form.cover_url} onChange={e => setForm({ ...form, cover_url: e.target.value })} className="mt-1" /></div>
+          <div>
+            <ImageUpload
+              label="Cover image (optional)"
+              value={form.cover_url}
+              onChange={url => setForm({ ...form, cover_url: url })}
+              previewClass="h-28 w-full rounded-lg object-cover"
+            />
+          </div>
           <div><Label>Excerpt</Label><Textarea value={form.excerpt} onChange={e => setForm({ ...form, excerpt: e.target.value })} className="mt-1" rows={2} /></div>
           <div><Label>Content (Markdown)</Label><Textarea value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} className="mt-1" rows={6} /></div>
           <div className="flex items-center gap-3"><Switch checked={form.published} onCheckedChange={v => setForm({ ...form, published: v })} /><Label>Published</Label></div>

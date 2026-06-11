@@ -1,0 +1,3 @@
+- [File Upload Architecture](file-upload-arch.md) — uploads routed via Express api-server (POST /api/upload, multer); URL uses REPLIT_DOMAINS for correct domain.
+- [Supabase Storage Blocked](supabase-storage.md) — anon key can't create buckets (RLS block); use api-server upload proxy instead.
+- [Schools Table Column](schools-table.md) — schools table uses `logo_url` not `image_url`; image_url belongs to content_blocks table.

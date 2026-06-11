@@ -5,17 +5,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ImageUpload } from "@/components/ui/ImageUpload";
 import { toast } from "sonner";
 
 type Settings = Record<string, string | null>;
 
-const SECTIONS: { title: string; fields: { key: string; label: string; long?: boolean; placeholder?: string }[] }[] = [
+const TEXT_SECTIONS: { title: string; fields: { key: string; label: string; long?: boolean; placeholder?: string }[] }[] = [
   {
     title: "Site Identity",
     fields: [
       { key: "brand_name", label: "Brand name" },
       { key: "tagline", label: "Tagline" },
-      { key: "logo_url", label: "Logo URL", placeholder: "https://..." },
       { key: "header_announcement", label: "Header announcement bar (leave empty to hide)" },
     ],
   },
@@ -93,7 +93,17 @@ export function SiteSettingsManager() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        {SECTIONS.map((sec) => (
+        <div className="rounded-2xl border border-border bg-card p-5">
+          <h4 className="mb-4 font-display text-sm font-semibold">Site Logo</h4>
+          <ImageUpload
+            label="Logo image"
+            value={(settings["logo_url"] as string) ?? ""}
+            onChange={(url) => setSettings({ ...settings, logo_url: url })}
+            previewClass="h-16 w-auto max-w-[200px] object-contain"
+          />
+        </div>
+
+        {TEXT_SECTIONS.map((sec) => (
           <div key={sec.title} className="rounded-2xl border border-border bg-card p-5">
             <h4 className="mb-4 font-display text-sm font-semibold">{sec.title}</h4>
             <div className="space-y-3">
