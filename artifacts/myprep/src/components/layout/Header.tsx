@@ -16,7 +16,7 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { LucideIcon } from "lucide-react";
-import myprepLogo from "@/assets/myprep-logo.png";
+import eliteTutorLogo from "@/assets/elite-tutor-logo.png";
 
 const iconMap: Record<string, LucideIcon> = {
   BookOpen, FileText, BookMarked, GraduationCap, Award, Globe2, Trophy,
@@ -78,7 +78,7 @@ export function Header() {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Link to="/" className="flex shrink-0 items-center gap-2">
           <img
-            src={settings.logo_url || myprepLogo}
+            src={settings.logo_url || eliteTutorLogo}
             alt={settings.brand_name}
             className="h-9 w-9 rounded-lg object-contain"
           />

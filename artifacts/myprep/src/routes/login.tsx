@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import myprepLogo from "@/assets/myprep-logo.png";
+import eliteTutorLogo from "@/assets/elite-tutor-logo.png";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
@@ -74,7 +74,7 @@ function LoginPage() {
 
         <div className="relative">
           <Link to="/" className="flex items-center gap-3">
-            <img src={myprepLogo} alt="Elite Tutor" className="h-10 w-10 rounded-xl" />
+            <img src={eliteTutorLogo} alt="Elite Tutor" className="h-10 w-10 rounded-xl" />
             <span className="font-display text-2xl font-bold">Elite Tutor</span>
           </Link>
         </div>
@@ -125,7 +125,7 @@ function LoginPage() {
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <Link to="/" className="flex items-center justify-center gap-2 mb-8 lg:hidden">
-            <img src={myprepLogo} alt="Elite Tutor" className="h-9 w-9 rounded-lg" />
+            <img src={eliteTutorLogo} alt="Elite Tutor" className="h-9 w-9 rounded-lg" />
             <span className="font-display text-xl font-bold">Elite Tutor</span>
           </Link>
 

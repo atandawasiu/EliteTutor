@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import myprepLogo from "@/assets/myprep-logo.png";
+import eliteTutorLogo from "@/assets/elite-tutor-logo.png";
 
 export function Footer() {
   const { settings, footerLinks } = useSiteSettings();
@@ -76,7 +76,7 @@ export function Footer() {
           <div className="col-span-2 lg:col-span-2">
             <Link to="/" className="flex items-center gap-2">
               <img
-                src={settings.logo_url || myprepLogo}
+                src={settings.logo_url || eliteTutorLogo}
                 alt={settings.brand_name}
                 className="h-8 w-8 rounded-lg object-contain"
               />
