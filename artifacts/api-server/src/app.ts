@@ -1,9 +1,9 @@
 import express, { type Express } from "express";
 import cors from "cors";
-import pinoHttp from "pino-http";
+import * as pinoHttp from "pino-http";
 import path from "path";
 import router from "./routes";
-import logger from "./lib/logger";
+import { logger } from "./lib/logger";
 
 const app: Express = express();
 
@@ -24,7 +24,7 @@ app.use(
         };
       },
     },
-  })
+  }),
 );
 
 app.use(cors());
@@ -36,7 +36,7 @@ app.use(
   express.static(path.join(process.cwd(), "uploads"), {
     maxAge: "7d",
     immutable: false,
-  })
+  }),
 );
 
 app.use("/api", router);
