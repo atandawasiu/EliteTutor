@@ -23,6 +23,9 @@ type Props = {
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 
+const HISTORY_KEY = (uid?: string) => `elite-ai-history-${uid ?? "anon"}`;
+const MAX_HISTORY = 40;
+
 export function AIChatWidget({ context, openSignal, starterPrompt }: Props) {
   const { user, session } = useAuth();
   const [open, setOpen] = useState(false);
@@ -32,6 +35,29 @@ export function AIChatWidget({ context, openSignal, starterPrompt }: Props) {
   const abortRef = useRef<AbortController | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const lastSignalRef = useRef<number | undefined>(undefined);
+  const historyLoadedRef = useRef(false);
+
+  // Load chat history from localStorage on mount / user change
+  useEffect(() => {
+    if (historyLoadedRef.current) return;
+    historyLoadedRef.current = true;
+    try {
+      const raw = localStorage.getItem(HISTORY_KEY(user?.id));
+      if (raw) {
+        const parsed = JSON.parse(raw) as Msg[];
+        if (Array.isArray(parsed) && parsed.length > 0) setMessages(parsed);
+      }
+    } catch {}
+  }, [user?.id]);
+
+  // Persist history to localStorage whenever messages change
+  useEffect(() => {
+    if (!historyLoadedRef.current) return;
+    try {
+      const toSave = messages.slice(-MAX_HISTORY);
+      localStorage.setItem(HISTORY_KEY(user?.id), JSON.stringify(toSave));
+    } catch {}
+  }, [messages, user?.id]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -144,6 +170,7 @@ export function AIChatWidget({ context, openSignal, starterPrompt }: Props) {
   const clear = () => {
     setMessages([]);
     abortRef.current?.abort();
+    try { localStorage.removeItem(HISTORY_KEY(user?.id)); } catch {}
   };
 
   return (

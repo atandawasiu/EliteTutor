@@ -18,13 +18,17 @@ export function CTASection() {
     e.preventDefault();
     if (!email.trim()) return;
     setSubmitting(true);
-    const payload: Record<string, string> = { email: email.trim().toLowerCase() };
-    if (user) payload.user_id = user.id;
+    const payload = { email: email.trim().toLowerCase() };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase.from("newsletter_subscribers") as any).upsert(payload, { onConflict: "email" });
     setSubmitting(false);
     if (error) {
-      toast.error("Couldn't subscribe. Please try again.");
+      if (error.code === "23505") {
+        toast.info("You're already subscribed!");
+        setDone(true);
+      } else {
+        toast.error("Couldn't subscribe — please try again.");
+      }
       return;
     }
     setDone(true);

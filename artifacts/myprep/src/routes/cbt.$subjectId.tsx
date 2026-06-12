@@ -409,6 +409,37 @@ function CBTEngine() {
           </div>
         )}
 
+        {/* Study Resources for weak topics */}
+        {(() => {
+          const weakTopics = Object.entries(topicBreakdown)
+            .filter(([, { correct, total }]) => Math.round((correct / total) * 100) < 70)
+            .map(([topic]) => topic);
+          if (weakTopics.length === 0) return null;
+          const examName = subject?.exams?.name ?? "";
+          return (
+            <div className="mt-6 rounded-2xl border border-border bg-card p-5">
+              <h3 className="font-display font-semibold mb-1 flex items-center gap-2">
+                📺 Study Resources
+              </h3>
+              <p className="text-xs text-muted-foreground mb-3">Topics where you scored under 70% — click to find video tutorials on YouTube.</p>
+              <div className="flex flex-wrap gap-2">
+                {weakTopics.map((topic) => (
+                  <a
+                    key={topic}
+                    href={`https://www.youtube.com/results?search_query=${encodeURIComponent(`${topic} ${examName} tutorial explanation`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-100 transition-colors dark:border-red-900 dark:bg-red-950/30 dark:text-red-400 dark:hover:bg-red-950/60"
+                  >
+                    ▶ {topic}
+                  </a>
+                ))}
+              </div>
+              <p className="mt-3 text-[11px] text-muted-foreground">Opens YouTube search in a new tab. Look for channels like Exam Success, Gidiclass, JAMB Success for relevant content.</p>
+            </div>
+          );
+        })()}
+
         {/* Review */}
         <div className="mt-6 space-y-4">
           <h2 className="font-display text-lg font-semibold">Review Answers</h2>

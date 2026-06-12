@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Users, BookOpen, BarChart3, FileText, Plus, Trash2, Loader2, School as SchoolIcon, Megaphone, Newspaper, Layers, Wifi, MenuIcon, ArrowUp, ArrowDown, Pencil, Eye, EyeOff, Shield, ShieldOff, Activity, LayoutTemplate, CheckSquare, Square, Copy, Check, FileSpreadsheet, RefreshCw, Pin, Lock, Mail } from "lucide-react";
+import { Users, BookOpen, BarChart3, FileText, Plus, Trash2, Loader2, School as SchoolIcon, Megaphone, Newspaper, Layers, Wifi, MenuIcon, ArrowUp, ArrowDown, Pencil, Eye, EyeOff, Shield, ShieldOff, Activity, LayoutTemplate, CheckSquare, Square, Copy, Check, FileSpreadsheet, RefreshCw, Pin, Lock, Mail, CheckCircle2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -1368,13 +1369,14 @@ function NewsletterManager() {
 
 /* ---------- COMMUNITY MODERATION ---------- */
 function CommunityModManager() {
-  const [threads, setThreads] = useState<{ id: string; title: string; category: string; pinned: boolean; locked: boolean; view_count: number; author_id: string; created_at: string }[]>([]);
+  const [threads, setThreads] = useState<{ id: string; title: string; body: string; category: string; pinned: boolean; locked: boolean; view_count: number; author_id: string; created_at: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [tab, setTab] = useState<"threads" | "whatsapp">("threads");
 
   const reload = async () => {
     setLoading(true);
-    const { data } = await supabase.from("forum_threads").select("id, title, category, pinned, locked, view_count, author_id, created_at").order("created_at", { ascending: false }).limit(200);
+    const { data } = await supabase.from("forum_threads").select("id, title, body, category, pinned, locked, view_count, author_id, created_at").order("created_at", { ascending: false }).limit(300);
     setThreads((data ?? []) as typeof threads);
     setLoading(false);
   };
@@ -1394,44 +1396,134 @@ function CommunityModManager() {
     if (error) toast.error(error.message); else { toast.success("Thread deleted"); reload(); }
   };
 
-  const filtered = threads.filter(t => !search || t.title.toLowerCase().includes(search.toLowerCase()) || t.category.toLowerCase().includes(search.toLowerCase()));
+  const normalThreads = threads.filter(t => t.category !== "WhatsApp");
+  const waPending = threads.filter(t => t.category === "WhatsApp" && !t.pinned);
+  const waApproved = threads.filter(t => t.category === "WhatsApp" && t.pinned);
+
+  const filteredNormal = normalThreads.filter(t => !search || t.title.toLowerCase().includes(search.toLowerCase()) || t.category.toLowerCase().includes(search.toLowerCase()));
+
+  const approveWa = async (id: string) => {
+    const { error } = await supabase.from("forum_threads").update({ pinned: true }).eq("id", id);
+    if (error) toast.error(error.message); else { toast.success("WhatsApp group approved and published!"); reload(); }
+  };
 
   return (
-    <div className="mt-4 rounded-2xl border border-border bg-card p-5">
-      <div className="flex flex-wrap items-center gap-2 mb-4">
-        <h3 className="font-display font-semibold">Forum Threads ({threads.length})</h3>
+    <div className="mt-4 rounded-2xl border border-border bg-card p-5 space-y-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <h3 className="font-display font-semibold">Community Moderation</h3>
         <div className="ml-auto flex items-center gap-2">
-          <Input placeholder="Search threads..." value={search} onChange={e => setSearch(e.target.value)} className="h-8 w-48 text-xs" />
           <Button size="sm" variant="outline" onClick={reload} className="h-8 text-xs"><RefreshCw className="h-3.5 w-3.5" /></Button>
         </div>
       </div>
+
+      {/* Sub-tabs */}
+      <div className="flex gap-2 border-b border-border pb-2">
+        {(["threads", "whatsapp"] as const).map(t => (
+          <button key={t} onClick={() => setTab(t)}
+            className={cn("rounded-lg px-3 py-1.5 text-xs font-medium transition-colors", tab === t ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground hover:text-foreground")}>
+            {t === "threads" ? `Threads (${normalThreads.length})` : `WhatsApp Groups (${waPending.length} pending, ${waApproved.length} live)`}
+            {t === "whatsapp" && waPending.length > 0 && (
+              <span className="ml-1.5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground">{waPending.length}</span>
+            )}
+          </button>
+        ))}
+      </div>
+
       {loading ? (
         <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
-      ) : (
-        <div className="space-y-2 max-h-[600px] overflow-y-auto">
-          {filtered.map(t => (
-            <div key={t.id} className="flex items-center justify-between gap-3 rounded-lg bg-secondary p-3">
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                  {t.pinned && <span className="text-[10px] font-bold text-accent bg-accent/10 px-1.5 py-0.5 rounded-full">PINNED</span>}
-                  {t.locked && <span className="text-[10px] font-bold text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">LOCKED</span>}
-                  <span className="text-[10px] font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">{t.category}</span>
+      ) : tab === "threads" ? (
+        <>
+          <Input placeholder="Search threads..." value={search} onChange={e => setSearch(e.target.value)} className="h-8 text-xs max-w-xs" />
+          <div className="space-y-2 max-h-[600px] overflow-y-auto">
+            {filteredNormal.map(t => (
+              <div key={t.id} className="flex items-center justify-between gap-3 rounded-lg bg-secondary p-3">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                    {t.pinned && <span className="text-[10px] font-bold text-accent bg-accent/10 px-1.5 py-0.5 rounded-full">PINNED</span>}
+                    {t.locked && <span className="text-[10px] font-bold text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">LOCKED</span>}
+                    <span className="text-[10px] font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">{t.category}</span>
+                  </div>
+                  <p className="font-medium text-sm line-clamp-1">{t.title}</p>
+                  <p className="text-xs text-muted-foreground">{new Date(t.created_at).toLocaleDateString()} · {t.view_count} views</p>
                 </div>
-                <p className="font-medium text-sm line-clamp-1">{t.title}</p>
-                <p className="text-xs text-muted-foreground">{new Date(t.created_at).toLocaleDateString()} · {t.view_count} views</p>
+                <div className="flex items-center gap-1 shrink-0">
+                  <Button size="sm" variant={t.pinned ? "default" : "outline"} onClick={() => togglePin(t.id, t.pinned)} className="h-7 text-xs gap-1 px-2">
+                    <Pin className="h-3 w-3" /> {t.pinned ? "Unpin" : "Pin"}
+                  </Button>
+                  <Button size="sm" variant={t.locked ? "default" : "outline"} onClick={() => toggleLock(t.id, t.locked)} className="h-7 text-xs gap-1 px-2">
+                    <Lock className="h-3 w-3" /> {t.locked ? "Unlock" : "Lock"}
+                  </Button>
+                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => removeThread(t.id)}><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
+                </div>
               </div>
-              <div className="flex items-center gap-1 shrink-0">
-                <Button size="sm" variant={t.pinned ? "default" : "outline"} onClick={() => togglePin(t.id, t.pinned)} className="h-7 text-xs gap-1 px-2">
-                  <Pin className="h-3 w-3" /> {t.pinned ? "Unpin" : "Pin"}
-                </Button>
-                <Button size="sm" variant={t.locked ? "default" : "outline"} onClick={() => toggleLock(t.id, t.locked)} className="h-7 text-xs gap-1 px-2">
-                  <Lock className="h-3 w-3" /> {t.locked ? "Unlock" : "Lock"}
-                </Button>
-                <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => removeThread(t.id)}><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
+            ))}
+            {filteredNormal.length === 0 && <p className="text-center text-sm text-muted-foreground py-8">No threads found.</p>}
+          </div>
+        </>
+      ) : (
+        <div className="space-y-5">
+          {/* Pending WhatsApp groups */}
+          <div>
+            <p className="text-sm font-semibold mb-2 flex items-center gap-2">
+              Pending Approval
+              {waPending.length > 0 && <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">{waPending.length}</span>}
+            </p>
+            {waPending.length === 0 ? (
+              <p className="text-xs text-muted-foreground rounded-lg bg-secondary p-3">No pending WhatsApp groups.</p>
+            ) : (
+              <div className="space-y-2">
+                {waPending.map(g => {
+                  let link = "", description = "", examFocus = "General";
+                  try { const j = JSON.parse(g.body); link = j.link ?? ""; description = j.description ?? ""; examFocus = j.examFocus ?? "General"; } catch { link = g.body; }
+                  return (
+                    <div key={g.id} className="rounded-lg border border-amber-200 bg-amber-50/60 p-3 dark:border-amber-900 dark:bg-amber-950/20">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium text-sm">{g.title}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">Focus: {examFocus} · Submitted {new Date(g.created_at).toLocaleDateString()}</p>
+                          {description && <p className="text-xs text-foreground mt-1 line-clamp-2">{description}</p>}
+                          {link && <a href={link} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline mt-1 block truncate">{link}</a>}
+                        </div>
+                        <div className="flex flex-col gap-1 shrink-0">
+                          <Button size="sm" onClick={() => approveWa(g.id)} className="h-7 text-xs bg-success text-success-foreground hover:bg-success/90 gap-1 px-2">
+                            <CheckCircle2 className="h-3 w-3" /> Approve
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => removeThread(g.id)} className="h-7 text-xs text-destructive px-2">
+                            <Trash2 className="h-3 w-3" /> Reject
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            </div>
-          ))}
-          {filtered.length === 0 && <p className="text-center text-sm text-muted-foreground py-8">No threads found.</p>}
+            )}
+          </div>
+
+          {/* Live WhatsApp groups */}
+          <div>
+            <p className="text-sm font-semibold mb-2">Live Groups ({waApproved.length})</p>
+            {waApproved.length === 0 ? (
+              <p className="text-xs text-muted-foreground rounded-lg bg-secondary p-3">No approved groups yet.</p>
+            ) : (
+              <div className="space-y-2 max-h-80 overflow-y-auto">
+                {waApproved.map(g => {
+                  let link = ""; try { link = JSON.parse(g.body).link ?? ""; } catch { link = g.body; }
+                  return (
+                    <div key={g.id} className="flex items-center justify-between gap-3 rounded-lg bg-secondary p-3">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-sm line-clamp-1">{g.title}</p>
+                        {link && <a href={link} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline truncate block">{link}</a>}
+                      </div>
+                      <Button size="sm" variant="outline" onClick={() => togglePin(g.id, true)} className="h-7 text-xs gap-1 px-2">
+                        <Trash2 className="h-3 w-3 text-destructive" /> Remove
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
