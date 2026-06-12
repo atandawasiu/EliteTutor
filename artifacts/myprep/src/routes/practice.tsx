@@ -75,9 +75,23 @@ function PracticeBuilder() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, result]);
 
+  const MAX_SUBJECTS_PER_EXAM = 4;
+
   const toggle = (id: string) => {
     const next = new Set(picked);
-    next.has(id) ? next.delete(id) : next.add(id);
+    if (next.has(id)) {
+      next.delete(id);
+    } else {
+      const subject = subjects.find(s => s.id === id);
+      const examName = subject?.exams?.name ?? "Other";
+      const examSubjects = subjects.filter(s => (s.exams?.name ?? "Other") === examName);
+      const pickedFromExam = examSubjects.filter(s => next.has(s.id)).length;
+      if (pickedFromExam >= MAX_SUBJECTS_PER_EXAM) {
+        toast.error(`Max ${MAX_SUBJECTS_PER_EXAM} subjects per exam (${examName})`);
+        return;
+      }
+      next.add(id);
+    }
     setPicked(next);
   };
 
@@ -279,21 +293,37 @@ function PracticeBuilder() {
 
       <div className="space-y-5 rounded-2xl border border-border bg-card p-5">
         <div>
-          <Label className="text-base font-semibold">Subjects ({picked.size} selected)</Label>
+          <div className="flex items-center justify-between">
+            <Label className="text-base font-semibold">Subjects ({picked.size} selected)</Label>
+            <span className="text-xs text-muted-foreground">Max {MAX_SUBJECTS_PER_EXAM} per exam</span>
+          </div>
           <div className="mt-3 max-h-72 space-y-4 overflow-y-auto pr-2">
-            {Object.entries(grouped).map(([exam, subs]) => (
-              <div key={exam}>
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">{exam}</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {subs.map(s => (
-                    <label key={s.id} className={cn("flex items-center gap-2 rounded-lg border p-2 cursor-pointer transition", picked.has(s.id) ? "border-primary bg-primary/5" : "border-border")}>
-                      <Checkbox checked={picked.has(s.id)} onCheckedChange={() => toggle(s.id)} />
-                      <span className="text-sm">{s.name}</span>
-                    </label>
-                  ))}
+            {Object.entries(grouped).map(([exam, subs]) => {
+              const pickedInGroup = subs.filter(s => picked.has(s.id)).length;
+              const atMax = pickedInGroup >= MAX_SUBJECTS_PER_EXAM;
+              return (
+                <div key={exam}>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{exam}</p>
+                    <span className={cn("text-xs font-medium tabular-nums", atMax ? "text-primary font-semibold" : "text-muted-foreground")}>
+                      {pickedInGroup}/{MAX_SUBJECTS_PER_EXAM}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {subs.map(s => {
+                      const isChecked = picked.has(s.id);
+                      const disabled = atMax && !isChecked;
+                      return (
+                        <label key={s.id} className={cn("flex items-center gap-2 rounded-lg border p-2 transition", isChecked ? "border-primary bg-primary/5 cursor-pointer" : disabled ? "border-border opacity-40 cursor-not-allowed" : "border-border cursor-pointer hover:border-primary/40")}>
+                          <Checkbox checked={isChecked} onCheckedChange={() => toggle(s.id)} disabled={disabled} />
+                          <span className="text-sm">{s.name}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 

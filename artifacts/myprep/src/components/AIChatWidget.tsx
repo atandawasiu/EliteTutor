@@ -174,8 +174,8 @@ export function AIChatWidget({ context, openSignal, starterPrompt }: Props) {
                   <Sparkles className="h-4 w-4" />
                 </div>
                 <div>
-                  <p className="font-display text-sm font-semibold leading-tight">Elite Tutor AI</p>
-                  <p className="text-[11px] opacity-90">Your study coach</p>
+                  <p className="font-display text-sm font-semibold leading-tight">Elite AI</p>
+                  <p className="text-[11px] opacity-90">Your personal study coach</p>
                 </div>
               </div>
               <div className="flex items-center gap-1">
@@ -196,8 +196,8 @@ export function AIChatWidget({ context, openSignal, starterPrompt }: Props) {
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                     <Sparkles className="h-6 w-6" />
                   </div>
-                  <p className="mt-3 font-display text-base font-semibold">Hi, I'm Elite Tutor AI 👋</p>
-                  <p className="mt-1 text-xs text-muted-foreground">Ask me to explain a topic, predict subjects for your course, plan your week, or break down a past question.</p>
+                  <p className="mt-3 font-display text-base font-semibold">Hi, I'm Elite AI 👋</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Ask me to explain a topic, predict subjects for your course, plan your study week, or break down any past question.</p>
                   <div className="mt-4 flex flex-wrap justify-center gap-2">
                     {[
                       "I want to study Computer Science via JAMB — what subjects?",
