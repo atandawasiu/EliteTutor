@@ -1,5 +1,16 @@
 import { Router } from "express";
 import { logger } from "../lib/logger";
+import type { Request } from "express";
+import type { Logger } from "pino";
+
+// Extend Express Request to include pino logger
+declare global {
+  namespace Express {
+    interface Request {
+      log: Logger;
+    }
+  }
+}
 
 const router = Router();
 
