@@ -119,10 +119,16 @@ function ThreadPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [threadId, user?.id]);
 
-  const reply = async () => {
-    if (!user) return toast.error("Log in to reply");
+  const reply = async (): Promise<void> => {
+    if (!user) {
+      toast.error("Log in to reply");
+      return;
+    }
     if (body.trim().length < 2) return;
-    if (thread?.locked) return toast.error("This thread is locked");
+    if (thread?.locked) {
+      toast.error("This thread is locked");
+      return;
+    }
     setPosting(true);
     const { error } = await supabase.from("forum_replies").insert({ thread_id: threadId, author_id: user.id, body: body.trim() });
     if (error) { toast.error(error.message); setPosting(false); return; }
@@ -138,8 +144,11 @@ function ThreadPage() {
     setBody(""); setPosting(false); toast.success("+2 pts");
   };
 
-  const toggleLike = async () => {
-    if (!user || !thread) return toast.error("Log in to like");
+  const toggleLike = async (): Promise<void> => {
+    if (!user || !thread) {
+      toast.error("Log in to like");
+      return;
+    }
     if (thread.liked_by_me) {
       await supabase.from("forum_likes").delete().eq("user_id", user.id).eq("thread_id", thread.id);
     } else {
@@ -150,7 +159,10 @@ function ThreadPage() {
   const deleteThread = async () => {
     if (!confirm("Delete this thread?")) return;
     const { error } = await supabase.from("forum_threads").delete().eq("id", threadId);
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success("Deleted");
     navigate({ to: "/community" });
   };

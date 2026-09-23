@@ -52,8 +52,17 @@ router.get("/wolfram", async (req, res) => {
       return;
     }
 
-    const data = await response.json();
-    const queryResult = data?.queryresult;
+    const data: unknown = await response.json();
+    const queryResult =
+      typeof data === "object" && data !== null && "queryresult" in data
+        ? (data.queryresult as {
+            success?: boolean;
+            didyoumean?: unknown[];
+            tips?: unknown[];
+            pods?: Record<string, unknown>[];
+            inputstring?: string;
+          })
+        : undefined;
 
     if (!queryResult?.success) {
       res.json({
