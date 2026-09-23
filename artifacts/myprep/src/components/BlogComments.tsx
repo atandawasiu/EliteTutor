@@ -45,8 +45,11 @@ export function BlogComments({ postId }: { postId: string }) {
     return () => { supabase.removeChannel(ch); };
   }, [postId]);
 
-  const submit = async () => {
-    if (!user) return toast.error("Please log in to comment");
+  const submit = async (): Promise<void> => {
+    if (!user) {
+      toast.error("Please log in to comment");
+      return;
+    }
     if (body.trim().length < 2) return;
     setPosting(true);
     const { error } = await supabase.from("blog_comments").insert({ post_id: postId, author_id: user.id, body: body.trim() });
