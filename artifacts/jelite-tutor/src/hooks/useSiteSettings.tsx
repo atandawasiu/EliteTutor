@@ -32,7 +32,7 @@ export type FooterLink = {
 
 const DEFAULTS: SiteSettings = {
   id: "",
-  brand_name: "Elite Tutor",
+  brand_name: "Jelite Tutor",
   tagline: "Africa's leading exam prep platform",
   logo_url: null,
   contact_email: "hello@elitetutor.ng",
@@ -45,7 +45,7 @@ const DEFAULTS: SiteSettings = {
   social_linkedin: "",
   social_whatsapp: "",
   footer_about: "Africa's leading exam prep platform.",
-  copyright_text: "© Elite Tutor. All rights reserved.",
+  copyright_text: "© Jelite Tutor. All rights reserved.",
   legal_tagline: "Made with ❤️ for African students.",
   header_announcement: "",
 };
@@ -62,9 +62,9 @@ export function useSiteSettings() {
     if (s) {
       const row = s as SiteSettings;
       // Migrate legacy brand name
-      if (row.brand_name === "MyPrep") row.brand_name = "Elite Tutor";
-      if (row.copyright_text?.includes("MyPrep"))
-        row.copyright_text = row.copyright_text.replace(/MyPrep/g, "Elite Tutor");
+      if (row.brand_name === "Jelite Tutor") row.brand_name = "Jelite Tutor";
+      if (row.copyright_text?.includes("Jelite Tutor"))
+        row.copyright_text = row.copyright_text.replace(/Jelite Tutor/g, "Jelite Tutor");
       setSettings({ ...DEFAULTS, ...row });
     }
     setFooterLinks((f ?? []) as FooterLink[]);

@@ -70,7 +70,7 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.18 0.04 230);
 
-  /* Brand primary — Elite Tutor forest green */
+  /* Brand primary — Jelite Tutor forest green */
   --primary: oklch(0.48 0.18 150);
   --primary-foreground: oklch(0.99 0.005 90);
 
@@ -92,7 +92,7 @@
   --warning: oklch(0.82 0.14 80);
   --warning-foreground: oklch(0.38 0.10 70);
 
-  /* Brand gradient — dark navy → forest green (Elite Tutor signature) */
+  /* Brand gradient — dark navy → forest green (Jelite Tutor signature) */
   --hero-gradient-from: oklch(0.18 0.04 240);
   --hero-gradient-via: oklch(0.30 0.10 200);
   --hero-gradient-to: oklch(0.48 0.18 150);

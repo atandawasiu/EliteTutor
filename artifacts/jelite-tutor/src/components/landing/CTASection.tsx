@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import eliteTutorLogo from "@/assets/elite-tutor-logo.png";
+import jeliteTutorLogo from "@/assets/jelite-tutor-logo.png";
 
 export function CTASection() {
   const { user } = useAuth();
@@ -45,7 +45,7 @@ export function CTASection() {
           {/* Logo badge */}
           <div className="mb-6 flex justify-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/15 p-2 shadow-lg ring-2 ring-white/20 backdrop-blur-sm">
-              <img src={eliteTutorLogo} alt="Elite Tutor" className="h-full w-full rounded-xl object-contain" />
+              <img src={jeliteTutorLogo} alt="Jelite Tutor" className="h-full w-full rounded-xl object-contain" />
             </div>
           </div>
 
@@ -53,7 +53,7 @@ export function CTASection() {
             Ready to Crush Your Next Exam?
           </h2>
           <p className="mx-auto mt-4 max-w-md text-white/80">
-            Join 250,000+ students already preparing smarter with Elite Tutor. It's free to get started.
+            Join 250,000+ students already preparing smarter with Jelite Tutor. It's free to get started.
           </p>
 
           {/* Newsletter subscribe */}
