@@ -1,6 +1,6 @@
 {
   "buildCommand": "pnpm run build",
   "installCommand": "pnpm install --frozen-lockfile",
-  "outputDirectory": "artifacts/myprep/dist/public",
+  "outputDirectory": "artifacts/jelite-tutor/dist/public",
   "framework": "vite"
 }

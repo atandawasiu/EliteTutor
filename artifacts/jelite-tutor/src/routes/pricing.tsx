@@ -22,7 +22,7 @@ const plans = [
     name: "Premium",
     price: "₦2,500",
     period: "/month",
-    desc: "Full access to everything Elite Tutor offers",
+    desc: "Full access to everything Jelite Tutor offers",
     features: [
       "Unlimited questions",
       "All 18+ exam types",

@@ -1,11 +1,11 @@
-# Elite Tutor
+# Jelite Tutor
 
 Africa's leading exam preparation platform for JAMB, WAEC, NECO, IELTS, SAT, GRE and 12+ exams — with AI-powered CBT, score tracking, smart insights, and bulk question management.
 
 ## Run & Operate
 
 - `pnpm --filter @workspace/api-server run dev` — run the API server (port 8080)
-- `pnpm --filter @workspace/myprep run dev` — run the MyPrep frontend (port 22454)
+- `pnpm --filter @workspace/jelite-tutor run dev` — run the Jelite Tutor frontend (port 22454)
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 
@@ -22,10 +22,10 @@ Africa's leading exam preparation platform for JAMB, WAEC, NECO, IELTS, SAT, GRE
 
 ## Where things live
 
-- `artifacts/myprep/src/routes/` — all pages (TanStack Router file-based routing)
-- `artifacts/myprep/src/components/` — shared components (ui/, layout/, landing/, admin/)
-- `artifacts/myprep/src/hooks/` — useAuth, useTheme, useSiteSettings, useSiteMenu
-- `artifacts/myprep/src/integrations/supabase/` — Supabase client + generated types
+- `artifacts/jelite-tutor/src/routes/` — all pages (TanStack Router file-based routing)
+- `artifacts/jelite-tutor/src/components/` — shared components (ui/, layout/, landing/, admin/)
+- `artifacts/jelite-tutor/src/hooks/` — useAuth, useTheme, useSiteSettings, useSiteMenu
+- `artifacts/jelite-tutor/src/integrations/supabase/` — Supabase client + generated types
 - `artifacts/api-server/src/routes/wolfram.ts` — WolframAlpha proxy route
 
 ## Architecture decisions
@@ -68,4 +68,4 @@ Africa's leading exam preparation platform for JAMB, WAEC, NECO, IELTS, SAT, GRE
 ## Pointers
 
 - See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
-- Supabase types: `artifacts/myprep/src/integrations/supabase/types.ts`
+- Supabase types: `artifacts/jelite-tutor/src/integrations/supabase/types.ts`

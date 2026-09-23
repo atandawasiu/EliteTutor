@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import eliteTutorLogo from "@/assets/elite-tutor-logo.png";
+import jeliteTutorLogo from "@/assets/jelite-tutor-logo.png";
 
 export const Route = createFileRoute("/signup")({
   component: SignupPage,
@@ -76,7 +76,7 @@ function SignupPage() {
       }
     } catch { /* non-blocking */ }
     setLoading(false);
-    toast.success("Account created! Welcome to Elite Tutor.");
+    toast.success("Account created! Welcome to Jelite Tutor.");
     navigate({ to: "/welcome" });
   };
 
@@ -89,8 +89,8 @@ function SignupPage() {
 
         <div className="relative">
           <Link to="/" className="flex items-center gap-3">
-            <img src={eliteTutorLogo} alt="Elite Tutor" className="h-10 w-10 rounded-xl" />
-            <span className="font-display text-2xl font-bold">Elite Tutor</span>
+            <img src={jeliteTutorLogo} alt="Jelite Tutor" className="h-10 w-10 rounded-xl" />
+            <span className="font-display text-2xl font-bold">Jelite Tutor</span>
           </Link>
         </div>
 
@@ -115,13 +115,13 @@ function SignupPage() {
           </div>
 
           <div className="rounded-2xl bg-white/10 p-5 backdrop-blur-sm">
-            <p className="text-sm italic text-white/80">"Elite Tutor helped me score 312 in JAMB. The practice questions are exactly like the real exam!"</p>
+            <p className="text-sm italic text-white/80">"Jelite Tutor helped me score 312 in JAMB. The practice questions are exactly like the real exam!"</p>
             <p className="mt-3 text-xs font-semibold text-green-300">— Chinedu O., University of Lagos (2024)</p>
           </div>
         </div>
 
         <div className="relative">
-          <p className="text-xs text-white/40">© {new Date().getFullYear()} Elite Tutor. All rights reserved.</p>
+          <p className="text-xs text-white/40">© {new Date().getFullYear()} Jelite Tutor. All rights reserved.</p>
         </div>
       </div>
 
@@ -130,8 +130,8 @@ function SignupPage() {
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <Link to="/" className="flex items-center justify-center gap-2 mb-8 lg:hidden">
-            <img src={eliteTutorLogo} alt="Elite Tutor" className="h-9 w-9 rounded-lg" />
-            <span className="font-display text-xl font-bold">Elite Tutor</span>
+            <img src={jeliteTutorLogo} alt="Jelite Tutor" className="h-9 w-9 rounded-lg" />
+            <span className="font-display text-xl font-bold">Jelite Tutor</span>
           </Link>
 
           {/* Progress indicator */}
@@ -228,7 +228,7 @@ function SignupPage() {
                     className="mt-0.5 accent-primary"
                   />
                   <label htmlFor="newsletter" className="text-xs text-muted-foreground cursor-pointer">
-                    Subscribe to Elite Tutor updates — exam tips, news, and study resources. Unsubscribe anytime.
+                    Subscribe to Jelite Tutor updates — exam tips, news, and study resources. Unsubscribe anytime.
                   </label>
                 </div>
 
