@@ -48,20 +48,6 @@ function PracticeBuilder() {
     });
   }, []);
 
-  // Restore prefs
-  useEffect(() => {
-    const raw = localStorage.getItem("practice_prefs");
-    if (raw) try {
-      const p = JSON.parse(raw);
-      if (p.subjects) setPicked(new Set(p.subjects));
-      if (p.count) setCount(p.count);
-      if (p.minutes) setMinutes(p.minutes);
-    } catch {}
-  }, []);
-  useEffect(() => {
-    localStorage.setItem("practice_prefs", JSON.stringify({ subjects: [...picked], count, minutes }));
-  }, [picked, count, minutes]);
-
   // Timer
   useEffect(() => {
     if (!session || result) return;
