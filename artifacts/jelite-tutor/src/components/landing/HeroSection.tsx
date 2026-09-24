@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 const quickActions = [
-  { label: "Find a Tutor", icon: Users, to: "/schools" },
+  { label: "Find a Tutor", icon: Users, to: "/cbt-centers" },
   { label: "Browse Courses", icon: BookOpen, to: "/learn" },
   { label: "Find a School", icon: School, to: "/schools" },
   { label: "Practice CBT", icon: ClipboardCheck, to: "/practice" },
