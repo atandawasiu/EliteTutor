@@ -41,13 +41,18 @@ function LoginPage() {
     }
     const { data: { user } } = await supabase.auth.getUser();
     let isAdmin = false;
+    let isOnboarded = false;
     if (user) {
-      const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", user.id);
+      const [{ data: roles }, { data: account }] = await Promise.all([
+        supabase.from("user_roles").select("role").eq("user_id", user.id),
+        supabase.from("profiles").select("onboarded").eq("id", user.id).maybeSingle(),
+      ]);
       isAdmin = (roles ?? []).some((r) => r.role === "admin");
+      isOnboarded = account?.onboarded ?? false;
     }
     setLoading(false);
     toast.success(isAdmin ? "Welcome back, Admin!" : "Welcome back!");
-    navigate({ to: isAdmin ? "/admin" : "/dashboard" });
+    navigate({ to: isAdmin ? "/admin" : isOnboarded ? "/dashboard" : "/welcome" });
   };
 
   const handlePasswordReset = async (e: React.FormEvent) => {

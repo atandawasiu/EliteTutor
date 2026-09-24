@@ -38,8 +38,11 @@ function useRealtime(table: string, onChange: () => void) {
 
 function AdminPanel() {
   const [stats, setStats] = useState({ users: 0, exams: 0, questions: 0, attempts: 0, posts: 0, schools: 0, subscribers: 0 });
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   const reload = async () => {
+    setStatsLoading(true);
     const [u, e, q, a, p, s, n] = await Promise.all([
       supabase.from("profiles").select("*", { count: "exact", head: true }),
       supabase.from("exams").select("*", { count: "exact", head: true }),
@@ -55,6 +58,8 @@ function AdminPanel() {
       attempts: a.count ?? 0, posts: p.count ?? 0, schools: s.count ?? 0,
       subscribers: n.count ?? 0,
     });
+    setLastUpdated(new Date());
+    setStatsLoading(false);
   };
   useEffect(() => { reload(); }, []);
   useRealtime("profiles", reload);
@@ -71,9 +76,18 @@ function AdminPanel() {
           <h1 className="font-display text-2xl font-bold">Admin Dashboard</h1>
           <p className="text-sm text-muted-foreground">Manage every aspect of Jelite Tutor in real-time</p>
         </div>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-3 py-1 text-xs font-medium text-success">
-          <Wifi className="h-3.5 w-3.5" /> Live
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="hidden text-xs text-muted-foreground sm:inline">
+            {lastUpdated ? `Updated ${lastUpdated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : "Loading overview"}
+          </span>
+          <Button variant="outline" size="sm" onClick={reload} disabled={statsLoading} aria-label="Refresh dashboard statistics">
+            <RefreshCw className={cn("h-3.5 w-3.5", statsLoading && "animate-spin")} />
+            <span className="hidden sm:inline">Refresh</span>
+          </Button>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-3 py-1 text-xs font-medium text-success">
+            <Wifi className="h-3.5 w-3.5" /> Live
+          </span>
+        </div>
       </div>
 
       <div className="mb-8 grid gap-3 grid-cols-2 sm:grid-cols-4 lg:grid-cols-7">
@@ -95,7 +109,7 @@ function AdminPanel() {
       </div>
 
       <Tabs defaultValue="questions">
-        <TabsList className="flex w-full flex-wrap h-auto">
+        <TabsList className="flex h-auto w-full flex-nowrap justify-start gap-1 overflow-x-auto p-1 lg:flex-wrap">
           <TabsTrigger value="questions">Questions</TabsTrigger>
           <TabsTrigger value="exams">Exams</TabsTrigger>
           <TabsTrigger value="subjects">Subjects</TabsTrigger>

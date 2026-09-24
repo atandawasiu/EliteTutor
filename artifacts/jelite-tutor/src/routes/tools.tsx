@@ -154,7 +154,7 @@ function JambScoreCalculator() {
       </div>
       <div className="space-y-3">
         {rows.map((row, i) => (
-          <div key={i} className="grid grid-cols-[1fr_80px] gap-2 items-end">
+          <div key={i} className="grid grid-cols-1 gap-2 items-end sm:grid-cols-[1fr_80px]">
             <div>
               <Label className="text-xs">Subject {i + 1}{i < 2 ? " (required)" : ""}</Label>
               {i < 2 ? (
@@ -262,11 +262,11 @@ function GpaCalculator() {
       </div>
 
       <div className="space-y-2 mb-3 max-h-72 overflow-y-auto pr-1">
-        <div className="grid grid-cols-[1fr_90px_60px_32px] gap-2 text-xs font-semibold text-muted-foreground px-1">
+        <div className="hidden grid-cols-[1fr_90px_60px_32px] gap-2 px-1 text-xs font-semibold text-muted-foreground sm:grid">
           <span>Course</span><span>Grade</span><span>Units</span><span />
         </div>
         {courses.map((c, i) => (
-          <div key={i} className="grid grid-cols-[1fr_90px_60px_32px] gap-2 items-center">
+          <div key={i} className="grid grid-cols-[minmax(0,1fr)_64px_32px] items-center gap-2 sm:grid-cols-[1fr_90px_60px_32px]">
             <Input value={c.name} onChange={e => update(i, "name", e.target.value)} placeholder="Course code" className="h-8 text-sm" />
             <Select value={c.grade} onValueChange={v => update(i, "grade", v)}>
               <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>

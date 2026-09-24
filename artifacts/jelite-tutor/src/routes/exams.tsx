@@ -39,6 +39,12 @@ function ExamsPage() {
 
       {loading ? (
         <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+      ) : exams.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
+          <BookOpen className="mx-auto h-10 w-10 text-muted-foreground" />
+          <h2 className="mt-4 font-display text-xl font-semibold">No exams published yet</h2>
+          <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">New exam content will appear here as soon as it is published by the EliteTutor team.</p>
+        </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {exams.map((exam, i) => (

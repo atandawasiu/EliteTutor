@@ -163,10 +163,25 @@
     border-color: var(--color-border);
   }
 
+  html {
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
+    min-width: 320px;
+    overflow-x: hidden;
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-body);
+  }
+
+  img, svg, video, canvas {
+    max-width: 100%;
+  }
+
+  button, a, input, select, textarea {
+    touch-action: manipulation;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -278,4 +293,9 @@
     from { background-position: 200% 0; }
     to { background-position: -200% 0; }
   }
+}
+
+@media (max-width: 639px) {
+  h1 { font-size: clamp(1.75rem, 8vw, 2.25rem); line-height: 1.15; }
+  h2 { font-size: clamp(1.25rem, 6vw, 1.75rem); line-height: 1.2; }
 }
