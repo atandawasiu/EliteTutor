@@ -136,11 +136,16 @@ function PracticeBuilder() {
       const sQs = bySubject[sid];
       const sCorrect = sQs.reduce((a, q) => a + (answers[q.id] === q.correct_answer ? 1 : 0), 0);
       const sScore = Math.round((sCorrect / sQs.length) * 100);
-      const { data: att } = await supabase.from("attempts").insert({
+      const { data: att, error: attemptError } = await supabase.from("attempts").insert({
         user_id: user.id, exam_id: examFor[sid], subject_id: sid,
         score: sScore, correct_count: sCorrect, total_questions: sQs.length,
         time_taken_seconds: Math.round(timeTaken / subjectIds.length), completed: true,
       }).select().single();
+      if (attemptError) {
+        toast.error("Your result could not be saved. Please try again.");
+        setSubmitting(false);
+        return;
+      }
       if (att) {
         await supabase.from("attempt_answers").insert(sQs.map(q => ({
           attempt_id: att.id, question_id: q.id,
@@ -192,7 +197,7 @@ function PracticeBuilder() {
                         </p>
                       ))}
                     </div>
-                    {q.explanation && <p className="mt-2 text-xs text-muted-foreground italic">💡 {q.explanation}</p>}
+                    {q.explanation && <p className="mt-2 text-xs text-muted-foreground italic">Explanation: {q.explanation}</p>}
                     <Button size="sm" variant="ghost" onClick={() => askExplain(q)} className="mt-2 text-primary text-xs">
                       <Sparkles className="h-3 w-3 mr-1" /> Ask AI to explain
                     </Button>
