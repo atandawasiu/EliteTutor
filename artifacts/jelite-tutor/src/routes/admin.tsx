@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { RequireAuth } from "@/components/RequireAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { AuditLogViewer } from "@/components/admin/AuditLogViewer";
 import { SiteSettingsManager } from "@/components/admin/SiteSettingsManager";
 import { FooterLinksManager } from "@/components/admin/FooterLinksManager";
@@ -1034,6 +1035,7 @@ function CopyableId({ id }: { id: string }) {
 }
 
 function UsersManager() {
+  const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<{ id: string; full_name: string | null; email: string | null; plan: string; created_at: string; whatsapp?: string | null; country?: string | null }[]>([]);
   const [adminIds, setAdminIds] = useState<Set<string>>(new Set());
   const [attemptCounts, setAttemptCounts] = useState<Record<string, number>>({});
@@ -1065,13 +1067,18 @@ function UsersManager() {
   };
 
   const toggleAdmin = async (id: string, isAdmin: boolean) => {
+    if (id === currentUser?.id && isAdmin) {
+      toast.error("You cannot remove your own admin access");
+      return;
+    }
+
     if (isAdmin) {
       if (!confirm("Remove admin access for this user?")) return;
       const { error } = await supabase.from("user_roles").delete().eq("user_id", id).eq("role", "admin");
-      if (error) toast.error(error.message); else toast.success("Admin access removed");
+      if (error) toast.error(error.message); else { toast.success("Admin access removed"); await reload(); }
     } else {
       const { error } = await supabase.from("user_roles").insert({ user_id: id, role: "admin" });
-      if (error) toast.error(error.message); else toast.success("User promoted to admin");
+      if (error) toast.error(error.message); else { toast.success("User promoted to admin"); await reload(); }
     }
   };
 
@@ -1121,8 +1128,8 @@ function UsersManager() {
                   <Button size="sm" variant="outline" onClick={() => togglePremium(u.id, u.plan)} className="text-xs h-7">
                     {u.plan === "premium" ? "Downgrade" : "Upgrade"}
                   </Button>
-                  <Button size="sm" variant={isAdmin ? "destructive" : "default"} onClick={() => toggleAdmin(u.id, isAdmin)} className="gap-1 text-xs h-7">
-                    {isAdmin ? <><ShieldOff className="h-3 w-3" /> Revoke</> : <><Shield className="h-3 w-3" /> Admin</>}
+                  <Button size="sm" variant={isAdmin ? "destructive" : "default"} onClick={() => toggleAdmin(u.id, isAdmin)} disabled={u.id === currentUser?.id && isAdmin} className="gap-1 text-xs h-7">
+                    {isAdmin ? <><ShieldOff className="h-3 w-3" /> {u.id === currentUser?.id ? "You" : "Revoke"}</> : <><Shield className="h-3 w-3" /> Admin</>}
                   </Button>
                 </div>
               </div>
