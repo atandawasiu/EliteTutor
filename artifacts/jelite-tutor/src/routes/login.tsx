@@ -27,7 +27,16 @@ function LoginPage() {
   const [forgotMode, setForgotMode] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetting, setResetting] = useState(false);
-  const { signIn } = useAuth();
+  const { signIn, signInWithGoogle } = useAuth();
+
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    const { error } = await signInWithGoogle();
+    if (error) {
+      setLoading(false);
+      toast.error(error.message);
+    }
+  };
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -161,6 +170,17 @@ function LoginPage() {
               <div className="mb-8">
                 <h2 className="font-display text-2xl font-bold">Welcome back</h2>
                 <p className="mt-2 text-sm text-muted-foreground">Sign in to continue your exam preparation journey</p>
+              </div>
+
+              <Button type="button" variant="outline" onClick={handleGoogleSignIn} disabled={loading} className="h-11 w-full gap-2">
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <span className="font-semibold text-[#4285F4]">G</span>}
+                Continue with Google
+              </Button>
+
+              <div className="my-5 flex items-center gap-3">
+                <div className="h-px flex-1 bg-border" />
+                <span className="text-xs text-muted-foreground">or use email</span>
+                <div className="h-px flex-1 bg-border" />
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-5">

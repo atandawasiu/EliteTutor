@@ -36,7 +36,16 @@ function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [newsletter, setNewsletter] = useState(true);
-  const { signUp } = useAuth();
+  const { signUp, signInWithGoogle } = useAuth();
+
+  const handleGoogleSignUp = async () => {
+    setLoading(true);
+    const { error } = await signInWithGoogle();
+    if (error) {
+      setLoading(false);
+      toast.error(error.message);
+    }
+  };
   const navigate = useNavigate();
 
   const handleStep1 = (e: React.FormEvent) => {
@@ -154,6 +163,17 @@ function SignupPage() {
               <div className="mb-6">
                 <h2 className="font-display text-2xl font-bold">Create your account</h2>
                 <p className="mt-1 text-sm text-muted-foreground">Free forever — no credit card required</p>
+              </div>
+
+              <Button type="button" variant="outline" onClick={handleGoogleSignUp} disabled={loading} className="mb-5 h-11 w-full gap-2">
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <span className="font-semibold text-[#4285F4]">G</span>}
+                Continue with Google
+              </Button>
+
+              <div className="mb-5 flex items-center gap-3">
+                <div className="h-px flex-1 bg-border" />
+                <span className="text-xs text-muted-foreground">or create with email</span>
+                <div className="h-px flex-1 bg-border" />
               </div>
 
               <form onSubmit={handleStep1} className="space-y-4">
