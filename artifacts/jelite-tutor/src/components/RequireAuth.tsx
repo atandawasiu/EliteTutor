@@ -12,10 +12,22 @@ export function RequireAuth({ children, requireAdmin = false }: { children: Reac
     else if (!loading && requireAdmin && !isAdmin) navigate({ to: "/dashboard" });
   }, [user, loading, isAdmin, requireAdmin, navigate]);
 
-  if (loading || !user || (requireAdmin && !isAdmin)) {
+  if (loading) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
+      <div className="flex min-h-[60vh] items-center justify-center" role="status" aria-live="polite">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="sr-only">Checking your account</span>
+      </div>
+    );
+  }
+
+  if (!user || (requireAdmin && !isAdmin)) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center px-4">
+        <div className="max-w-md rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
+          <h1 className="font-display text-xl font-bold">Admin access required</h1>
+          <p className="mt-2 text-sm text-muted-foreground">Sign in with an authorized Jelite Tutor administrator account to continue.</p>
+        </div>
       </div>
     );
   }

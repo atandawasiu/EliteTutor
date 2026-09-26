@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Loader2, Save, Settings as SettingsIcon } from "lucide-react";
+import { Loader2, Save, Settings as SettingsIcon, MailCheck, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -92,7 +92,23 @@ export function SiteSettingsManager() {
         </Button>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="mb-4 grid gap-4 lg:grid-cols-2">
+        <div className="rounded-2xl border border-primary/20 bg-primary/5 p-5 lg:col-span-2">
+          <div className="flex items-start gap-3">
+            <div className="rounded-xl bg-primary/10 p-2 text-primary"><ShieldCheck className="h-5 w-5" /></div>
+            <div className="min-w-0 flex-1">
+              <h4 className="font-display font-semibold">Jelite Tutor Authentication & Email Brand</h4>
+              <p className="mt-1 text-sm text-muted-foreground">Supabase Auth powers sign in, Google login, email confirmation, password recovery, and secure sessions.</p>
+              <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
+                <div><p className="text-xs text-muted-foreground">Project</p><p className="font-medium">Jelite Tutor</p></div>
+                <div><p className="text-xs text-muted-foreground">Website</p><p className="font-medium break-all">{window.location.origin}</p></div>
+                <div><p className="text-xs text-muted-foreground">Email sender</p><p className="font-medium">Jelite Tutor Support</p></div>
+                <div><p className="text-xs text-muted-foreground">Templates</p><p className="font-medium">Confirm, reset, invite</p></div>
+              </div>
+              <div className="mt-4 flex items-center gap-2 rounded-lg border border-border/70 bg-background/60 p-3 text-xs text-muted-foreground"><MailCheck className="h-4 w-4 shrink-0 text-primary" /> Configure the branded sender name, logo, and email copy in Supabase Dashboard → Authentication → Email Templates. Keep the redirect URL set to this website.</div>
+            </div>
+          </div>
+        </div>
         <div className="rounded-2xl border border-border bg-card p-5">
           <h4 className="mb-4 font-display text-sm font-semibold">Site Logo</h4>
           <ImageUpload
